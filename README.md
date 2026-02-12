@@ -1,4 +1,4 @@
-# Kakeya AGI Simulator — Streaming LLM Stick Bundles with Novelty-Gated Adaptive Learning
+# Kakeya AGI — Streaming LLM Stick Bundles with Novelty-Gated Adaptive Learning
 
 ## Overview
 
