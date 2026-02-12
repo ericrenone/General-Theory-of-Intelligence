@@ -15,7 +15,7 @@ Key properties:
 - **Local novelty gates**, enabling adaptive, surprise-driven updates to activations.  
 - **Dynamic memory efficiency**, avoiding the memory wall by forming sticks on-the-fly rather than storing all simultaneously.  
 
-> 💡 *One-liner*: “Emergent AGI, stick by stick, without breaking the memory wall.”
+> 💡 “Emergent AGI, stick by stick, without breaking the memory wall.”
 
 ---
 
