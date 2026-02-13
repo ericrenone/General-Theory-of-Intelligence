@@ -117,7 +117,7 @@ Kakeya AGI assume:
 | Energy scaling | ∝ parameters | ∝ information change |
 | AGI suitability | Weak | Strong |
 
-This is the **post-von-Neumann paradigm**: **structure itself is computation**.
+> This is the **post-von-Neumann paradigm**: **structure itself is computation**.
 
 ---
 
