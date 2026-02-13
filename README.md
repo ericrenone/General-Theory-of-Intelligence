@@ -70,9 +70,8 @@ Stick activations are rotated and combined to approximate a **Kakeya set** in hi
 
 ---
 
-### 5. Real-Time Interactive Visualization
+### 5. Emergent AGI Key Metrics
 
-The simulator tracks:
 
 - **Entropy dynamics** — information density  
 - **Energy evolution** — geometric stability  
