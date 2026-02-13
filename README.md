@@ -1,21 +1,22 @@
 # Kakeya AGI — Streaming LLM Stick Bundles with Novelty-Gated Adaptive Learning
 
+---
+
 ## Overview
 
-The **Kakeya AGI** is a **first-principles framework** demonstrating how **emergent general intelligence** arises from **deterministic streaming neural computation**.  
+**Kakeya AGI** is a first-principles computational framework demonstrating how **emergent general intelligence** arises from **deterministic streaming neural computation**.
 
-- Multiple pre-trained LLMs are represented as **weight stick bundles**.  
-- These sticks are **relationally defined and novelty-activated**: they exist only in response to new, surprising inputs.  
-- Activations are processed in **fixed-point arithmetic**, combined via **local novelty-gated adaptive learning**, and projected using **Kakeya-inspired geometric transformations** to cover all high-dimensional directions.  
+Multiple pre-trained LLMs are decomposed into **weight stick bundles** — geometric principal directions that exist only by **relational activation** and are triggered solely by **novelty**. Computation occurs in **fixed-point arithmetic**, is locally adaptive through **novelty-gated learning**, and is globally expressive through **Kakeya-inspired geometric coverage** of high-dimensional representation space.
 
-**Key conceptual breakthroughs:**
+### Core Breakthroughs
 
-- **Memory-light computation:** Sticks exist only by relationship and are **activated only by novelty**.  
-- **Deterministic fixed-point execution:** Mimics FPGA/ASIC hardware with bit-exact precision.  
-- **Emergent general intelligence:** Global behavior emerges from **local, surprise-driven interactions**.  
-- **Kakeya geometric coverage:** Ensures maximal exploration of representational space.  
+- **Memory-light computation** — sticks form only when relationships activate  
+- **Deterministic fixed-point execution** — FPGA/ASIC compatible and bit-exact  
+- **Emergent intelligence** — global behavior from local novelty events  
+- **Geometric completeness** — all representational directions exist  
+- **Post-von-Neumann design** — memory and computation unified  
 
-> 💡 *“Sticks exist only by relation, fire only by novelty, and intelligence emerges in between.”*
+> **“Sticks exist only by relation, fire only by novelty, and intelligence emerges in between.”**
 
 ---
 
@@ -23,74 +24,153 @@ The **Kakeya AGI** is a **first-principles framework** demonstrating how **emerg
 
 ### 1. LLM Stick Bundles — Exist Only by Relationship
 
-- Each LLM is decomposed into **principal component sticks** via **SVD (Eckart–Young decomposition)**.  
-- **Relational Activation:** Sticks are not static; they are **activated dynamically** when novelty is detected.  
-- **Memory Efficiency:** Only a subset of sticks is active at any time, minimizing **BRAM/LUT usage**.  
-- **Emergent Network:** Activated sticks form a **computational web of relationships**, not a static matrix.  
+Each LLM is decomposed into **principal component sticks** using **Singular Value Decomposition (Eckart–Young)**.
+
+- **Relational activation:** sticks are not static parameters — they activate only under novelty  
+- **Sparse memory footprint:** only active sticks occupy resources  
+- **Emergent computation graph:** relationships form dynamically rather than as dense matrices  
+
+This eliminates the traditional memory wall by computing only when information changes.
+
+---
 
 ### 2. Fixed-Point Deterministic Execution
 
-- Uses **Q16.16 fixed-point arithmetic** to simulate FPGA/ASIC integer computation.  
-- **Bit-exact computation** guarantees reproducibility across platforms.  
-- **Streaming datapaths** enable continuous processing with minimal control overhead.  
+The simulator operates entirely in **Q16.16 fixed-point arithmetic**.
+
+- Bit-exact reproducibility  
+- No floating-point drift  
+- Native FPGA/ASIC compatibility  
+- Streaming datapaths with minimal control overhead  
+
+This demonstrates that AGI-like dynamics survive integer-only hardware.
+
+---
 
 ### 3. Local Novelty-Gated Adaptive Learning
 
-- **Novelty gates** trigger updates when activation changes exceed a threshold.  
-- Simulates **adaptive plasticity**, where the system learns faster from surprising inputs.  
-- Supports **emergent coordination** across multiple sticks without centralized control.  
+Each stick is modulated by a **novelty gate**:
+
+- Updates trigger when geometric activation shifts exceed threshold  
+- Learning rate scales with surprise  
+- Plasticity remains strictly local  
+
+This creates an event-driven cognitive substrate.
+
+---
 
 ### 4. Kakeya Geometric Coverage
 
-- Rotates and combines stick activations across multiple LLMs to approximate a **Kakeya set** in high-dimensional space.  
-- **Representational completeness:** every input can map to some high-dimensional direction.  
-- **Out-of-distribution generalization:** local novelty + global coverage ensures adaptive, AGI-like behavior.  
+Stick activations are rotated and combined to approximate a **Kakeya set** in high-dimensional space:
+
+- Every representational direction exists  
+- Ensures theoretical completeness  
+- Enables out-of-distribution generalization  
+- Combines local novelty with global expressiveness  
+
+---
 
 ### 5. Real-Time Interactive Visualization
 
-Tracks four axes of system dynamics:
+The simulator tracks:
 
-1. **Entropy Dynamics:** Information density of the streams.  
-2. **Energy Evolution:** Stability of SVD components.  
-3. **Novelty Detections:** “Aha!” moments in the data stream.  
-4. **Adaptive Gain (α):** Real-time sensitivity to new information.  
+- **Entropy dynamics** — information density  
+- **Energy evolution** — geometric stability  
+- **Novelty detections** — adaptation events  
+- **Adaptive gain (α)** — real-time sensitivity  
+
+---
+
+## Neuromorphic & Post-Von-Neumann Mapping
+
+Kakeya AGI directly implements core neuromorphic principles:
+
+| Neuromorphic Principle | Kakeya Implementation |
+|----------------------|----------------------|
+| Event-driven compute | Novelty-triggered activation |
+| Sparse firing | Stick activation only when needed |
+| Local plasticity | Novelty-gated updates |
+| Energy ∝ activity | Energy ∝ information change |
+| No memory shuttling | Structure equals compute |
+
+### What Kakeya Adds Beyond Classical Neuromorphic Systems
+
+- High-dimensional relational geometry  
+- Representational completeness  
+- Principled generalization  
+- Continuous meaning space  
+
+This replaces spike timing with **activation of semantic directions** — dramatically increasing cognitive efficiency.
+
+---
+
+## Why This Is Fundamentally Different From GPU Paradigms
+
+Modern GPU systems (e.g., those advanced by NVIDIA) optimize:
+
+- Dense matrix multiplication  
+- Massive memory bandwidth  
+- Throughput-first architectures  
+
+Even with sparsity tricks, GPUs assume:
+
+> fetch weights → compute → write back → repeat
+
+### Kakeya AGI assumes:
+
+> nothing exists unless novelty demands it
+
+| Property | GPU Paradigm | Kakeya AGI |
+|---------|------------|-----------|
+| Memory movement | Massive | Minimal |
+| Compute trigger | Clock | Novelty |
+| Sparsity | Emulated | Native |
+| Adaptation | Offline | Online |
+| Energy scaling | ∝ parameters | ∝ information change |
+| AGI suitability | Weak | Strong |
+
+This is the post-von-Neumann shift: **structure is the computation**.
 
 ---
 
 ## Key Takeaways
 
-- **Emergent AGI** from **relational, novelty-driven local transformations**.  
-- **Memory-wall-agnostic design:** sticks form only when needed, dramatically reducing memory footprint.  
-- **Deterministic fixed-point computation** ensures correctness and hardware efficiency.  
-- **Kakeya-inspired projections** guarantee high-dimensional representational coverage.  
-- **Multi-model streaming** integrates heterogeneous LLMs into a unified adaptive system.  
+- Emergent AGI arises from relational, novelty-driven local dynamics  
+- Memory wall is structurally eliminated  
+- Fixed-point arithmetic preserves cognition under hardware constraints  
+- Kakeya geometry guarantees representational completeness  
+- Multi-model streaming enables scalable heterogeneous intelligence  
 
 ---
 
 ## Practical Significance
 
-- Serves as a **hardware-inspired AGI substrate**, suitable for FPGA/ASIC implementation.  
-- Demonstrates **quantized, streaming computation** replicating key cognitive mechanisms.  
-- Provides **blueprint for emergent AGI accelerators**, integrating multiple models.  
-- Enables **real-time insights** into sparsity, novelty, and representational coverage.  
+- Blueprint for FPGA/ASIC emergent AGI accelerators  
+- Demonstrates hardware-realistic intelligence substrates  
+- Enables ultra-low-energy adaptive cognition  
+- Provides real-time system interpretability  
 
 ---
 
 ## References
 
 ### FPGA & Quantized Neural Networks
+- Krishnamoorthi, R. *Quantizing Deep Convolutional Networks for Efficient Inference*  
+- Umuroglu, Y. et al. *LogicNets: Co-Designed Neural Networks and Circuits for Extreme-Throughput Applications*
 
-- Krishnamoorthi, R. *Quantizing deep convolutional networks for efficient inference.*  
-- Umuroglu, Y. et al. *LogicNets: Co-Designed Neural Networks and Circuits for Extreme-Throughput Applications.*
+### Weight Geometry & Compression
+- Golub & Reinsch — *Numerical Linear Algebra (SVD Theory)*  
+- Wolff — *The Kakeya Problem and Geometric Measure Theory*
 
-### Weight Compression & Geometry
+### Novelty-Driven Plasticity
+- Storkey — *Online Learning and Neural Plasticity*
 
-- Golub, G. H., & Reinsch, C. *Numerical Linear Algebra (SVD Theory).*  
-- Wolff, T. *The Kakeya Problem and Geometric Measure Theory.*
+---
 
-### Novelty-Gated Learning
+## About
 
-- Storkey, A. *Online Learning and Neural Plasticity.*
-
+Deterministic geometry.  
+Novelty-driven computation.  
+Emergent intelligence without the memory wall.
 
 
