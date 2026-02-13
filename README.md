@@ -70,7 +70,7 @@ Stick activations are rotated and combined to approximate a **Kakeya set** in hi
 
 ---
 
-### 5. Emergent AGI Key Metrics
+### 5. Emergent AGI Metrics
 
 
 - **Entropy dynamics** — information density  
