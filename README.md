@@ -1,6 +1,6 @@
 # Emergent General Intelligence Theory (EGI Theory)
 
-## A Complete Field-Theoretic Framework for Understanding Machine Intelligence
+## Theoretic Framework for Understanding Machine Intelligence
 
 ---
 
