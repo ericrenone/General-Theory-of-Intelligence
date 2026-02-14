@@ -1,9 +1,7 @@
 # General Theory of Intelligence (GTI)
-## A Unified Physics Framework for Deep Learning
 
----
 
-## Core Discovery
+## Core 
 
 Intelligence emergence in neural networks is governed by a **universal critical threshold** where systematic learning signal overcomes stochastic noise, quantified by the consolidation ratio **C_α ≈ 1**.
 
