@@ -1,4 +1,4 @@
-# Kakeya AGI Theory — Streaming LLM Stick Bundles with Novelty-Gated Adaptive Learning
+# Kakeya EGI Theory — Streaming LLM Stick Bundles with Novelty-Gated Adaptive Learning
 
 Kakeya AGI provides a **first-principles framework for emergent general intelligence**, integrating **relational neural computation, novelty-gated adaptive learning, fixed-point determinism**, and **geometric coverage of high-dimensional representation spaces**.
 
