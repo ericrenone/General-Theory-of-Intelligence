@@ -1,6 +1,3 @@
-Absolutely! Here’s a **GitHub-ready Markdown (`.md`)** version of your **Kakeya AGI Theory README**, fully formatted for copy-paste:
-
-````markdown
 # Kakeya AGI Theory — Emergent Intelligence from Geometry, Novelty, and Information
 
 ## Overview
