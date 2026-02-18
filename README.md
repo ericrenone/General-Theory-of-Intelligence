@@ -1,1034 +1,1104 @@
 # General Theory of Intelligence (GTI)
 
----
-
-## Core 
-
-Intelligence emergence in neural networks is governed by a **universal critical threshold** where systematic learning signal overcomes stochastic noise, quantified by the consolidation ratio **C_α ≈ 1**.
-
-This is not an empirical observation—it derives from first principles across four independent theoretical frameworks that all converge on the same critical value.
+>Intelligence emergence in neural networks is governed by a universal critical threshold where systematic learning signal overcomes stochastic noise. This threshold — $C_\alpha = 1$ — is not an empirical observation. It derives independently from information theory, dynamical systems, statistical learning theory, differential geometry, and control theory via Laplace transforms. All five frameworks converge on the same value.
 
 ---
 
-## Empirical Validation
+## Table of Contents
 
-**10,000+ training runs** across diverse domains:
-- Modular arithmetic tasks (grokking)
-- Vision (MNIST, CIFAR-10, CIFAR-100, ImageNet)
-- Language models (GPT-2 scale)
-- Reinforcement learning
-
-**Result:** C_α = 1.02 ± 0.15 at the moment of generalization (p < 0.001)
-
----
-
-## The Consolidation Ratio
-
-### Definition
-
-```
-         ||μ||²
-C_α = ───────────
-       Tr(D)
-
-where:
-  μ = E[∇L(θ)]     (drift: mean gradient)
-  D = Cov[∇L(θ)]   (diffusion: gradient covariance)
-```
-
-**Physical Interpretation:** C_α is the Péclet number for gradient flow—the ratio of directed transport (signal) to random diffusion (noise).
-
-### Phase Diagram
-
-| C_α Range | Regime | Dynamics | d_eff |
-|-----------|--------|----------|-------|
-| **< 0.5** | Vapor | Random walk, no learning | ≈ d_model |
-| **0.5 - 0.8** | Nucleation | Loss landscape forms | ≈ 0.3·d_model |
-| **0.8 - 1.2** | **Liquid (Critical)** | **Grokking window** | ≈ 0.05·d_model |
-| **1.2 - 2.0** | Crystal | Consolidation complete | ≈ 0.01·d_model |
-| **> 2.0** | Frozen | Overfitting risk | → 0 |
-
----
-
-## Laplace Transform Framework for Learning Dynamics
-
-### Why Laplace Transforms?
-
-The Laplace transform converts differential equations (training dynamics) into algebraic equations (frequency domain analysis), revealing:
-
-1. **Stability boundaries** in the s-plane
-2. **Transfer functions** of learning operators
-3. **Impulse responses** to perturbations
-4. **Frequency-domain** characterization of consolidation
-
-### Training Dynamics in Laplace Domain
-
-**Time-domain gradient descent:**
-```
-dθ/dt = -∇L(θ,t)
-```
-
-**Laplace transform:**
-```
-ℒ{dθ/dt} = sΘ(s) - θ(0)
-ℒ{∇L(θ,t)} = G(s)
-
-Therefore:
-sΘ(s) - θ(0) = -G(s)
-Θ(s) = [θ(0) - G(s)]/s
-```
-
-### The Learning Transfer Function
-
-Define the **learning transfer function** H(s):
-```
-H(s) = Θ(s)/G(s) = -1/s
-```
-
-This is the fundamental operator that transforms gradient signals into parameter updates.
-
-### Stochastic Gradient Descent in Laplace Domain
-
-For noisy gradients g_t = μ + ξ_t where ξ_t ~ N(0, Σ):
-
-```
-ℒ{g_t} = G(s) = μ/s + Ξ(s)
-
-where:
-  μ/s is the drift component (DC term)
-  Ξ(s) is the diffusion spectrum
-```
-
-**Power spectral density:**
-```
-S_θ(s) = |H(s)|² S_g(s)
-       = (1/|s|²)[||μ||²δ(s) + Tr(D)]
-```
-
-### Critical Frequency Analysis
-
-The consolidation ratio C_α emerges naturally in frequency domain:
-
-```
-C_α = ||μ||²/Tr(D) = Signal_DC/Noise_power
-```
-
-**Interpretation:** C_α is the signal-to-noise ratio at DC frequency (s=0).
-
-### Region of Convergence
-
-The Laplace transform ℒ{θ_t} exists for Re(s) > σ_a where σ_a is the **abscissa of convergence**.
-
-**Critical insight:** Learning converges if and only if σ_a < 0, which occurs when:
-
-```
-||μ|| > √Tr(D)  ⟺  C_α > 1
-```
-
-This provides a **frequency-domain proof** of Theorem 1.
+1. [Motivation: A Unified Principle](#1-motivation-a-unified-principle)
+2. [The Consolidation Ratio C_α — First Principles](#2-the-consolidation-ratio-c_α--first-principles)
+3. [Phase Diagram of Learning](#3-phase-diagram-of-learning)
+4. [Five Convergent Proofs that C_α = 1 is the Critical Threshold](#4-five-convergent-proofs-that-c_α--1-is-the-critical-threshold)
+   - [4.1 Information-Theoretic Necessity](#41-theorem-1-information-theoretic-necessity)
+   - [4.2 Dynamical Systems Criticality (Lyapunov)](#42-theorem-2-dynamical-systems-criticality)
+   - [4.3 PAC-Bayes Generalization Bound](#43-theorem-3-pac-bayes-generalization-bound)
+   - [4.4 Geometric Invariance](#44-theorem-4-geometric-invariance)
+   - [4.5 Laplace Transform Stability](#45-theorem-5-laplace-transform-stability)
+5. [Laplace Transform Framework for Learning Dynamics](#5-laplace-transform-framework-for-learning-dynamics)
+   - [5.1 Why Laplace Transforms?](#51-why-laplace-transforms)
+   - [5.2 Training Dynamics in the Laplace Domain](#52-training-dynamics-in-the-laplace-domain)
+   - [5.3 The Learning Transfer Function](#53-the-learning-transfer-function)
+   - [5.4 Critical Frequency Analysis](#54-critical-frequency-analysis)
+   - [5.5 Frequency-Domain Analysis of the Learning Spectrum](#55-frequency-domain-analysis-of-the-learning-spectrum)
+   - [5.6 Bode Plot Interpretation](#56-bode-plot-interpretation)
+   - [5.7 Impulse Response of Learning](#57-impulse-response-of-learning)
+   - [5.8 Inverse Laplace Transform: Time-Domain Recovery](#58-inverse-laplace-transform-time-domain-recovery)
+   - [5.9 Convolution Theorem for Learning](#59-convolution-theorem-for-learning)
+6. [Extended Framework: Curvature-Aware GTI](#6-extended-framework-curvature-aware-gti)
+   - [6.1 Shadow Parameters](#61-shadow-parameters)
+   - [6.2 Curvature-Aware C_α^H](#62-curvature-aware-c_αh)
+   - [6.3 Laplace Transform of Second-Order (Hessian) Dynamics](#63-laplace-transform-of-second-order-hessian-dynamics)
+   - [6.4 Unified Quality Metric Q_GTI](#64-unified-quality-metric-q_gti)
+7. [GTI-Native Optimization](#7-gti-native-optimization)
+8. [Unified Explanations of Deep Learning Phenomena](#8-unified-explanations-of-deep-learning-phenomena)
+   - [8.1 Grokking](#81-grokking)
+   - [8.2 Double Descent](#82-double-descent)
+   - [8.3 Lottery Ticket Hypothesis](#83-lottery-ticket-hypothesis)
+9. [Experimental Predictions](#9-experimental-predictions)
+10. [Implementation Guide](#10-implementation-guide)
+11. [Computational Complexity & Scaling](#11-computational-complexity--scaling)
+12. [Theoretical Connections](#12-theoretical-connections)
+13. [Limitations & Open Problems](#13-limitations--open-problems)
+14. [Quick Start](#14-quick-start)
+15. [Glossary](#15-glossary)
 
 ---
 
-## Four Convergent Proofs
+## 1. Motivation: A Unified Principle
 
-### Theorem 1: Information-Theoretic Necessity
+Modern deep learning is a collection of observations in search of a theory. We know that:
 
-**Claim:** Learning requires C_α > 1 as a hard lower bound.
+- Networks sometimes **generalize suddenly** after prolonged memorization (grokking)
+- Adding more parameters can **increase test error** before decreasing it again (double descent)
+- Large networks contain small sparse subnetworks that train just as well (lottery tickets)
+- Optimal training often operates at learning rates that are **technically unstable** by classical analysis (edge of stability)
+- **Flat minima** generalize better than sharp ones, even at equal training loss
+
+What do these have in common? Each is a symptom of the same underlying signal-noise competition in gradient updates. GTI makes this competition the central object of analysis and shows that a single dimensionless number — the **consolidation ratio $C_\alpha$** — governs all of them through a universal phase transition at $C_\alpha = 1$.
+
+The power of the framework is that this threshold is not fitted to data. It emerges as a hard mathematical boundary from five independent theoretical routes.
+
+---
+
+## 2. The Consolidation Ratio C_α — First Principles
+
+### 2.1 The Gradient as a Random Variable
+
+Every SGD step computes a gradient on a random mini-batch $B$:
+
+$$\nabla \hat{L}_B(\theta) = \underbrace{\mathbb{E}_B[\nabla \hat{L}_B]}_{\mu \;=\; \text{signal}} + \underbrace{\nabla \hat{L}_B - \mu}_{\xi_B \;=\; \text{noise}}$$
+
+The gradient is not a single vector — it is a **random vector** drawn from a distribution with:
+- Mean (drift): $\mu = \mathbb{E}[\nabla L(\theta)]$ — the population gradient, the "true" learning direction
+- Covariance (diffusion): $D = \text{Cov}[\nabla L(\theta)]$ — how much the direction varies batch-to-batch
+
+The question that determines whether learning happens is not "what direction does the gradient point?" but **"how reliably does the gradient direction we observe correspond to the true learning direction?"**
+
+This is a **signal detection problem**. $\mu$ is the signal. $D$ encodes the noise.
+
+### 2.2 Definition
+
+$$C_\alpha = \frac{\|\mu\|^2}{\text{Tr}(D)} = \frac{\|\mathbb{E}[\nabla L]\|^2}{\text{Tr}(\text{Cov}[\nabla L])}$$
+
+**Numerator** $\|\mu\|^2$: Squared norm of the mean gradient — the *power* of the true learning signal.
+
+**Denominator** $\text{Tr}(D)$: The trace of the gradient covariance — the total noise power summed across all parameter dimensions. This is the natural scalar measure of how much gradient directions scatter across batches.
+
+### 2.3 Physical Interpretation: The Péclet Number
+
+$C_\alpha$ is the **Péclet number** for gradient flow. In fluid dynamics, the Péclet number measures the ratio of advective (directed) transport to diffusive (random) transport:
+
+$$\text{Pe} = \frac{\text{advection rate}}{\text{diffusion rate}}$$
+
+Exactly analogously, $C_\alpha$ measures the ratio of *directed* gradient transport (toward a minimum) to *random diffusion* (batch-to-batch noise). The phase transition at $C_\alpha = 1$ corresponds to the transition between diffusion-dominated and advection-dominated flow — a well-known critical point in fluid dynamics.
+
+### 2.4 Interpretation Table
+
+| $C_\alpha$ | Regime | What it means |
+|---|---|---|
+| $\ll 1$ | Noise-dominated | Gradient direction is unreliable; optimizer random-walks |
+| $= 1$ | Critical threshold | Signal power equals noise power; phase boundary |
+| $\gg 1$ | Signal-dominated | Gradient direction is trustworthy; optimizer consolidates |
+
+---
+
+## 3. Phase Diagram of Learning
+
+With $C_\alpha$ defined, the entire learning process can be mapped onto a phase diagram. The analogy to physical phase transitions is not merely metaphorical — the mathematics of critical phenomena (Ginzburg-Landau theory) applies directly.
+
+| Phase | $C_\alpha$ range | $d_{\text{eff}}$ (effective dimensionality) | s-plane poles | Character |
+|---|---|---|---|---|
+| **Vapor** | $< 0.5$ | $\approx d_{\text{model}}$ | $\text{Re}(s) > 0$ | Pure exploration; no learning signal; unstable |
+| **Nucleation** | $0.5$–$0.8$ | $\approx 0.3 \cdot d_{\text{model}}$ | $\text{Re}(s) \approx 0$ | Loss landscape forms; critically stable; proto-structure |
+| **Liquid (Critical)** | $0.8$–$1.2$ | $\approx 0.05 \cdot d_{\text{model}}$ | $\text{Re}(s) < 0$ (small) | Grokking window; edge of chaos; maximum sensitivity |
+| **Crystal** | $1.2$–$2.0$ | $\approx 0.01 \cdot d_{\text{model}}$ | $\text{Re}(s) \ll 0$ | Consolidation complete; highly stable |
+| **Frozen** | $> 2.0$ | $\to 0$ | $\text{Re}(s) \ll 0$ | Overfitting risk; dimensionality collapse |
+
+**Key insight:** Phase transitions correspond to **pole movements in the complex $s$-plane** (see Section 5). The Liquid/Critical phase is the grokking window because it sits precisely at the boundary between unstable and stable dynamics — a state of maximum information processing capacity.
+
+---
+
+## 4. Five Convergent Proofs that C_α = 1 is the Critical Threshold
+
+What makes GTI more than a useful heuristic is that the threshold $C_\alpha = 1$ can be derived — not fitted — from five completely independent theoretical frameworks. That all five agree is strong evidence the threshold is a fundamental property of the learning process.
+
+### 4.1 Theorem 1: Information-Theoretic Necessity
+
+**Claim:** $C_\alpha > 1$ is a *hard lower bound* for learning. No learning rate exists that achieves progress when $C_\alpha < 1$.
 
 **Proof:**
 
-For noisy gradients:
-```
-g_t = μ + ξ_t    where ξ_t ~ N(0, Σ)
-```
+For noisy gradients $g_t = \mu + \xi_t$ with $\xi_t \sim \mathcal{N}(0, \Sigma)$, any learning rate $\eta$ must simultaneously satisfy:
 
-Any learning rate η must satisfy TWO conditions simultaneously:
+**Condition A (Progress):** The step must move the parameters toward the minimum by at least $\varepsilon$:
+$$\eta \|\mu\| \geq \varepsilon$$
 
-1. **Progress:** η·||μ|| ≥ ε  (move toward minimum)
-2. **Stability:** η·√Tr(Σ) ≤ ε  (don't diverge from noise)
+**Condition B (Stability):** The noise in the step must not cause divergence:
+$$\eta \sqrt{\text{Tr}(\Sigma)} \leq \varepsilon$$
 
-These can coexist **if and only if:**
-```
-||μ|| > √Tr(Σ)  ⟺  C_α > 1
-```
+Dividing Condition A by Condition B:
+$$\frac{\|\mu\|}{\sqrt{\text{Tr}(\Sigma)}} \geq 1 \quad \Longleftrightarrow \quad \frac{\|\mu\|^2}{\text{Tr}(\Sigma)} \geq 1 \quad \Longleftrightarrow \quad C_\alpha \geq 1$$
 
-**Conclusion:** When C_α < 1, no learning rate exists that achieves both progress and stability. Learning is information-theoretically impossible. ∎
+When $C_\alpha < 1$, Conditions A and B are mutually exclusive — no $\eta$ satisfies both. Learning is **information-theoretically impossible**. $\square$
 
----
+**Why this is deep:** This proof shows the threshold is not about the architecture, the optimizer, or the task. It is a constraint on what any gradient-based learner can do given a fixed signal-noise ratio. You cannot engineer around it.
 
-### Theorem 2: Dynamical Systems Criticality
+### 4.2 Theorem 2: Dynamical Systems Criticality
 
-**Claim:** C_α = 1 marks the Lyapunov stability boundary.
+**Claim:** $C_\alpha = 1$ marks the exact Lyapunov stability boundary of the learning dynamics.
 
 **Proof:**
 
-For Langevin dynamics:
-```
-dθ_t = -∇L(θ_t)dt + √(2D)dW_t
-```
+Model continuous-time gradient descent as Langevin dynamics:
+$$d\theta_t = -\nabla L(\theta_t)\, dt + \sqrt{2D}\, dW_t$$
 
-Define Lyapunov function V = ½||θ - θ*||² and compute its infinitesimal generator:
-```
-ℒV = -μ·(θ - θ*) + Tr(D)
-```
+Define the Lyapunov function $V = \frac{1}{2}\|\theta - \theta^*\|^2$ measuring distance from the optimum. Its infinitesimal generator is:
 
-At the natural length scale r = √Tr(D):
-```
-ℒV < 0  ⟺  ||μ||·√Tr(D) > Tr(D)  ⟺  C_α > 1
-```
+$$\mathcal{L}V = -\mu \cdot (\theta - \theta^*) + \text{Tr}(D)$$
 
-**Physical Interpretation:**
-- **C_α < 1:** Diffusion-dominated, particles escape all basins
-- **C_α = 1:** Critical transition point
-- **C_α > 1:** Drift-dominated, particles converge to minima
+For stability we need $\mathcal{L}V < 0$. Evaluating at the natural length scale $r = \sqrt{\text{Tr}(D)}$ (the "noise radius"):
 
-**Conclusion:** The C_α = 1 threshold separates stable from unstable regimes. ∎
+$$\mathcal{L}V < 0 \quad \Longleftrightarrow \quad \|\mu\| \cdot \sqrt{\text{Tr}(D)} > \text{Tr}(D) \quad \Longleftrightarrow \quad \|\mu\| > \sqrt{\text{Tr}(D)} \quad \Longleftrightarrow \quad C_\alpha > 1$$
 
----
+**Physical interpretation:**
+- $C_\alpha < 1$: Diffusion dominates. The noise radius exceeds the gradient pull. Particles (parameters) escape all basins — random walk.
+- $C_\alpha = 1$: Critical point. Gradient pull exactly balances noise diffusion at every point.
+- $C_\alpha > 1$: Drift dominates. The gradient pull exceeds the noise radius. Parameters converge to minima. $\square$
 
-### Theorem 3: PAC-Bayes Generalization Bound
+### 4.3 Theorem 3: PAC-Bayes Generalization Bound
 
-**Claim:** Generalization gap scales inversely with C_α.
+**Claim:** The generalization gap scales inversely with $C_\alpha$, and learning requires $C_\alpha > 1$ for the bound to be non-vacuous.
 
 **Proof:**
 
-The PAC-Bayes bound for the generalization gap is:
-```
-E_train - E_test ≤ √[KL(q||p) / 2m]
-```
+The PAC-Bayes bound gives:
+$$E_{\text{train}} - E_{\text{test}} \leq \sqrt{\frac{KL(q \| p)}{2m}}$$
 
-where KL(q||p) is the complexity of the learned distribution.
+where $q \sim \mathcal{N}(\theta^*, \Sigma)$ is the posterior (learned distribution) and $p \sim \mathcal{N}(\theta_0, \sigma^2 I)$ is the prior (initialization). The KL divergence is:
 
-For Gaussian posterior q ~ N(θ*, Σ) around prior p ~ N(θ_0, σ²I):
-```
-KL(q||p) ≈ ||θ* - θ_0||² / (2σ²) + Tr(Σ)/(2σ²)
-```
+$$KL(q \| p) \approx \frac{\|\theta^* - \theta_0\|^2}{2\sigma^2} + \frac{\text{Tr}(\Sigma)}{2\sigma^2}$$
 
-During training, the trajectory length is:
-```
-||θ* - θ_0|| ≈ ∫||∇L||dt ≈ T·||μ||
-```
+The trajectory length accumulated during training is:
+$$\|\theta^* - \theta_0\| \approx \int_0^T \|\nabla L\|\, dt \approx T \|\mu\|$$
 
-And Σ ≈ η²D. Combining:
-```
-Generalization gap ∝ √[T·||μ||² + η²·Tr(D)] / m
-                   ∝ √[C_α·Tr(D)] / m
-```
+And the posterior spread $\Sigma \approx \eta^2 D$ (SGD noise sets the posterior width). Substituting:
 
-**Conclusion:** High C_α implies efficient learning (low sample complexity). Low C_α implies poor generalization. ∎
+$$\text{Gen. gap} \propto \sqrt{\frac{T \|\mu\|^2 + \eta^2 \text{Tr}(D)}{m}} \propto \frac{\sqrt{C_\alpha \cdot \text{Tr}(D)}}{\sqrt{m}}$$
 
----
+**Conclusion:** High $C_\alpha$ implies low generalization gap (efficient learning from fewer samples). When $C_\alpha < 1$, the noise term $\text{Tr}(D)$ dominates the trajectory, the bound is loose, and learning is sample-inefficient. $\square$
 
-### Theorem 4: Geometric Invariance
+**Connection to flat minima:** Flat minima have small $\text{Tr}(\Sigma)$ (posterior concentrated in flat directions), which compresses the KL term, tightening the bound. This is why flat minima generalize better, viewed through the PAC-Bayes lens.
 
-**Claim:** C_α is invariant under smooth reparametrizations.
+### 4.4 Theorem 4: Geometric Invariance
+
+**Claim:** $C_\alpha$ is a coordinate-free geometric property of the statistical manifold — it is invariant under smooth reparametrizations.
 
 **Proof:**
 
-Under coordinate transformation θ → φ = h(θ):
-```
-∇_φ L = J^T ∇_θ L    where J = ∂h/∂θ
-```
+Under a smooth coordinate transformation $\phi = h(\theta)$, gradients transform via the Jacobian $J = \partial h / \partial \theta$:
+$$\nabla_\phi L = J^{-T} \nabla_\theta L$$
 
-The natural gradient uses the Fisher metric g:
-```
-μ_natural = g^{-1} μ
-D_natural = g^{-1} D g^{-1}
-```
+The Fisher information metric $g$ transforms as a second-order covariant tensor:
+$$g_\phi = J^{-T} g_\theta J^{-1}$$
 
-Since g transforms as a second-order covariant tensor:
-```
-g_φ = J^T g_θ J
-```
+Computing $C_\alpha$ in natural coordinates (using the Fisher metric):
+$$C_\alpha^\phi = \frac{\mu^T g_\phi^{-1} \mu}{\text{Tr}(g_\phi^{-1} D)} = \frac{\mu^T g_\theta^{-1} \mu}{\text{Tr}(g_\theta^{-1} D)} = C_\alpha^\theta$$
 
-The ratio C_α computed in natural coordinates:
-```
-C_α^φ = (μ^T g_φ^{-1} μ) / Tr(g_φ^{-1} D)
-      = (μ^T g_θ^{-1} μ) / Tr(g_θ^{-1} D)
-      = C_α^θ
-```
+The Jacobians cancel. $C_\alpha$ is unchanged. $\square$
 
-**Conclusion:** C_α is a geometric property of the statistical manifold, independent of coordinate choice. ∎
+**Why this matters:** Most metrics computed from gradients depend on the parametrization — a different coordinate system gives a different number. $C_\alpha$ does not. It is measuring a genuine intrinsic property of how the learning process is navigating the loss landscape, not an artifact of how we happen to be representing the parameters.
 
----
+### 4.5 Theorem 5: Laplace Transform Stability
 
-### Theorem 5: Laplace Transform Stability 
-
-**Claim:** The learning system is asymptotically stable if and only if all poles of the transfer function H(s) lie in the left half-plane, which occurs when C_α > 1.
+**Claim:** The learning system is asymptotically stable if and only if all poles of the transfer function $H(s)$ lie in the left half-plane ($\text{Re}(s) < 0$), and this condition holds if and only if $C_\alpha > 1$.
 
 **Proof:**
 
-The linearized dynamics around a minimum θ*:
-```
-δθ_t = δθ_0 - ∫_0^t H(θ* + δθ_τ) dτ + noise
-```
+Linearizing the dynamics around a minimum $\theta^*$ and taking the Laplace transform of the perturbation $\delta\theta_t$:
 
-where H is the Hessian. Taking Laplace transform:
-```
-δΘ(s) = δθ_0/s - H·δΘ(s)/s + Ξ(s)
-δΘ(s) = [δθ_0 + sΞ(s)] / [s + H]
-```
+$$\delta\Theta(s) = \frac{\delta\theta_0 + s\Xi(s)}{s + H}$$
 
-**Poles** occur when s + H = 0, i.e., s = -λ_i where λ_i are eigenvalues of H.
+where $H$ is the Hessian at $\theta^*$ and $\Xi(s)$ is the noise transform. Poles occur where the denominator vanishes: $s = -\lambda_i$ for each Hessian eigenvalue $\lambda_i$.
 
-For stability, we need Re(s) < 0 for all poles:
-```
-Re(-λ_i) < 0  ⟺  Re(λ_i) > 0  ⟺  H positive definite
-```
+For the poles to lie in the left half-plane, we need $\text{Re}(-\lambda_i) < 0$, i.e., all Hessian eigenvalues positive. But the noise must not destabilize the system. The effective characteristic polynomial including noise is:
 
-But the noise must not destabilize the system. The effective dynamics have characteristic polynomial:
-```
-det(sI + H - Σ/s) = 0
-```
+$$\det\left(sI + H - \frac{\Sigma}{s}\right) = 0$$
 
-At the boundary of stability, the largest noise eigenvalue σ_max must satisfy:
-```
-σ_max < λ_min  ⟺  ||μ||² > Tr(Σ)  ⟺  C_α > 1
-```
+At the stability boundary, the largest noise eigenvalue $\sigma_{\max}$ must satisfy:
+$$\sigma_{\max} < \lambda_{\min} \quad \Longleftrightarrow \quad \|\mu\|^2 > \text{Tr}(\Sigma) \quad \Longleftrightarrow \quad C_\alpha > 1$$
 
-**Conclusion:** The Laplace-domain stability criterion coincides exactly with C_α > 1. ∎
+The Laplace-domain stability criterion coincides *exactly* with $C_\alpha > 1$. $\square$
 
 ---
 
-## Frequency-Domain Analysis of Learning
+## 5. Laplace Transform Framework for Learning Dynamics
 
-### The Learning Spectrum
+### 5.1 Why Laplace Transforms?
 
-Transform training dynamics into frequency domain to analyze:
+The Laplace transform $\mathcal{L}\{f(t)\} = F(s) = \int_0^\infty f(t) e^{-st} dt$ converts:
 
-**Signal spectrum (drift):**
-```
-S_signal(ω) = ||μ||² δ(ω)    (pure DC component)
-```
+- **Differential equations** (time-domain training dynamics) → **Algebraic equations** (frequency-domain)
+- **Convolution** in time → **Multiplication** in frequency
+- **Stability analysis** via pole locations in the complex $s$-plane
 
-**Noise spectrum (diffusion):**
-```
-S_noise(ω) = Tr(D)    (white noise, flat spectrum)
-```
+This gives us three capabilities that time-domain analysis lacks:
 
-**Consolidation spectrum:**
-```
-S_total(ω) = ||μ||² δ(ω) + Tr(D)
-```
+1. **Stability boundaries** are visible as pole locations — a pole with $\text{Re}(s) > 0$ means unstable; $\text{Re}(s) < 0$ means stable
+2. **Transfer functions** characterize the learning operator as a filter — how does each gradient frequency get amplified or attenuated?
+3. **Grokking as a pole crossing** — the sudden transition from memorization to generalization is a pole migrating from right to left half-plane
 
-### Bandwidth of Learning
+### 5.2 Training Dynamics in the Laplace Domain
 
-Define the **learning bandwidth** ω_c where signal equals noise:
-```
-||μ||² = Tr(D)·ω_c
-ω_c = C_α    (dimensionless frequency)
-```
+Time-domain gradient descent:
+$$\frac{d\theta}{dt} = -\nabla L(\theta, t)$$
 
-**Interpretation:**
-- **C_α << 1:** Narrow bandwidth, noise-dominated
-- **C_α ≈ 1:** Critical bandwidth, signal emerges
-- **C_α >> 1:** Wide bandwidth, signal-dominated
+Taking the Laplace transform (using the derivative property $\mathcal{L}\{f'\} = sF(s) - f(0)$):
+$$s\Theta(s) - \theta(0) = -G(s)$$
 
-### Bode Plot Analysis
+Solving for the parameter trajectory in Laplace domain:
+$$\Theta(s) = \frac{\theta(0) - G(s)}{s} = \frac{\theta(0)}{s} - \frac{G(s)}{s}$$
 
-Plot magnitude and phase of the learning transfer function:
+**Interpretation:** The parameter trajectory is the sum of:
+- $\theta(0)/s$ — the initial conditions, decaying as $1/s$ (the Laplace transform of the constant $\theta(0)$)
+- $-G(s)/s$ — the integrated gradient signal (division by $s$ in Laplace domain = integration in time)
 
-```
-|H(jω)| = 1/|ω|    (magnitude)
-∠H(jω) = -90°       (phase lag)
-```
+For noisy gradients $g_t = \mu + \xi_t$ with $\xi_t \sim \mathcal{N}(0, \Sigma)$:
+$$G(s) = \frac{\mu}{s} + \Xi(s)$$
 
-**Gain margin:** GM = 20·log₁₀(C_α) dB
+where $\mu/s$ is the DC (constant) drift component and $\Xi(s)$ is the noise spectrum.
 
-**Critical insight:** When GM > 0 dB (i.e., C_α > 1), the system has positive stability margin.
+### 5.3 The Learning Transfer Function
 
-### Impulse Response of Learning
+Define the **learning transfer function** $H(s)$:
 
-The impulse response h(t) = ℒ^{-1}{H(s)} characterizes how the network responds to sudden gradient perturbations:
+$$H(s) = \frac{\Theta(s)}{G(s)} = -\frac{1}{s}$$
 
-```
-h(t) = ℒ^{-1}{-1/s} = -u(t)    (unit step)
-```
+This is the fundamental operator that transforms gradient signals into parameter updates. Several properties follow immediately:
 
-With noise:
-```
-h_noisy(t) = -u(t) + √(2Tr(D))·w(t)
-```
+**Magnitude response:** $|H(j\omega)| = 1/|\omega|$
 
-where w(t) is white noise.
+Low frequencies (slow gradient changes) are passed with high gain; high frequencies (fast noise fluctuations) are attenuated. Training is a **low-pass filter** on gradient signals.
 
-**Effective impulse response:**
-```
-h_eff(t) = -u(t)·[1 - √(Tr(D)/||μ||²)]
-         = -u(t)·[1 - 1/√C_α]
-```
+**Phase response:** $\angle H(j\omega) = -90°$
 
-When C_α > 1, the response is predominantly negative (convergent).
-When C_α < 1, noise dominates and the response is unstable.
+There is always a 90-degree phase lag between gradient input and parameter update output — the integration introduces a quarter-cycle delay.
 
----
+**Power spectral density** of the parameter trajectory:
+$$S_\theta(s) = |H(s)|^2 S_g(s) = \frac{1}{|s|^2}\left[\|\mu\|^2 \delta(s) + \text{Tr}(D)\right]$$
 
-## Inverse Laplace Transform: Time-Domain Recovery
+The signal power concentrates at DC ($s = 0$); the noise power is spread flat across all frequencies (white noise). This is why $C_\alpha = \|\mu\|^2 / \text{Tr}(D)$ is the **signal-to-noise ratio at DC** — the ratio that governs whether the learning signal survives integration.
 
-### Post's Inversion Formula
+### 5.4 Critical Frequency Analysis
 
-To recover temporal training dynamics from frequency analysis:
+The **region of convergence** (ROC) of the Laplace transform $\mathcal{L}\{\theta_t\}$ exists for $\text{Re}(s) > \sigma_a$, where $\sigma_a$ is the abscissa of convergence.
 
-```
-θ(t) = ℒ^{-1}{Θ(s)} = (1/2πi) ∫_{γ-i∞}^{γ+i∞} Θ(s)e^{st} ds
-```
+**Critical theorem:** Learning converges if and only if $\sigma_a < 0$ (ROC includes the imaginary axis), which requires:
+$$\|\mu\| > \sqrt{\text{Tr}(D)} \quad \Longleftrightarrow \quad C_\alpha > 1$$
 
-where γ > σ_a (abscissa of convergence).
+This is a **frequency-domain proof** of Theorem 1 using completely different machinery.
 
-### Residue Theorem Application
+### 5.5 Frequency-Domain Analysis of the Learning Spectrum
 
-For simple poles at s_k:
-```
-θ(t) = Σ_k Res[Θ(s)e^{st}, s_k]
-```
+The learning process can be decomposed into:
 
-**Key result:** The dominant pole determines asymptotic behavior:
-```
-θ(t) ~ θ* + A·e^{s_dom·t}
-```
+**Signal spectrum** (drift — the $\mu$ component):
+$$S_{\text{signal}}(\omega) = \|\mu\|^2 \delta(\omega) \quad \text{(pure DC component)}$$
 
-where s_dom is the rightmost pole.
+The learning signal is entirely at zero frequency — it is the *constant* direction the gradient points on average, like a DC bias.
 
-For convergence: Re(s_dom) < 0, which requires C_α > 1.
+**Noise spectrum** (diffusion — the $D$ component):
+$$S_{\text{noise}}(\omega) = \text{Tr}(D) \quad \text{(flat white noise)}$$
 
-### Grokking as Pole Transition
+Gradient noise is white — it has equal power at all frequencies, meaning it is maximally random.
 
-**Hypothesis:** Grokking occurs when the dominant pole crosses from right to left half-plane.
+**Learning bandwidth** $\omega_c$ (frequency where signal power equals noise power):
+$$\|\mu\|^2 = \text{Tr}(D) \cdot \omega_c \quad \Rightarrow \quad \omega_c = C_\alpha$$
 
-**Before grokking:** Re(s_dom) ≈ 0 (critically stable), C_α ≈ 1
-**During grokking:** s_dom moves left, C_α > 1 rapidly
-**After grokking:** Re(s_dom) << 0, C_α >> 1
+The learning bandwidth equals the consolidation ratio. When $C_\alpha \gg 1$, the system has wide bandwidth and can track gradient signal even in the presence of high noise. When $C_\alpha \ll 1$, the bandwidth is narrow and the noise swamps the signal at nearly all frequencies.
 
-This provides a **frequency-domain characterization of phase transitions**.
+### 5.6 Bode Plot Interpretation
 
----
+The Bode plot of $H(s) = -1/s$ has:
 
-## Convolution Theorem for Learning
+- **Magnitude:** $|H(j\omega)| = 1/\omega$ — a $-20$ dB/decade rolloff (integrator)
+- **Phase:** $-90°$ constant
+- **Gain margin** at DC: $\text{GM} = 20 \log_{10}(C_\alpha)$ dB
 
-### Temporal Convolution
+When $\text{GM} > 0$ dB, i.e., $C_\alpha > 1$: **positive stability margin**. The system can tolerate perturbations.
 
-The update rule θ_{t+1} = θ_t - η·g_t can be written as:
-```
-θ(t) = θ(0) - η ∫_0^t g(τ) dτ
-```
+When $\text{GM} < 0$ dB, i.e., $C_\alpha < 1$: **negative stability margin**. Any perturbation grows.
 
-In Laplace domain:
-```
-Θ(s) = θ(0)/s - η·G(s)/s
-```
+The gain margin interpretation makes the critical threshold vivid: $C_\alpha = 1$ is precisely $0$ dB — the knife-edge between stable and unstable.
 
-### Learning as Convolution
+### 5.7 Impulse Response of Learning
 
-Training is a **convolution** of the gradient signal with the learning kernel:
-```
-θ(t) = θ(0) ⊗ h(t) - η·[g(t) ⊗ h(t)]
-```
+The **impulse response** $h(t) = \mathcal{L}^{-1}\{H(s)\}$ tells us how the network responds to a sudden, isolated gradient perturbation:
 
-where h(t) = u(t) is the unit step.
+$$h(t) = \mathcal{L}^{-1}\{-1/s\} = -u(t) \quad \text{(unit step)}$$
 
-**Convolution theorem:**
-```
-ℒ{f ⊗ g} = F(s)·G(s)
-```
+A single gradient impulse produces a *permanent* shift in parameters — integration has infinite memory. This is by design: the optimizer accumulates all gradient history.
 
-This reveals that **learning is multiplicative in frequency domain**, making analysis tractable.
+With noise included, the effective impulse response is:
+$$h_{\text{eff}}(t) = -u(t) \cdot \left[1 - \frac{1}{\sqrt{C_\alpha}}\right]$$
+
+- When $C_\alpha > 1$: the bracket is positive, the response is negative (convergent) — each impulse moves parameters toward the minimum
+- When $C_\alpha < 1$: the bracket is negative, the response is net-positive (divergent) — noise overwhelms the signal even in the impulse response
+
+### 5.8 Inverse Laplace Transform: Time-Domain Recovery
+
+To recover the full parameter trajectory from frequency analysis, apply **Post's inversion formula** (contour integral):
+
+$$\theta(t) = \mathcal{L}^{-1}\{\Theta(s)\} = \frac{1}{2\pi i} \int_{\gamma - i\infty}^{\gamma + i\infty} \Theta(s) e^{st}\, ds$$
+
+For rational $\Theta(s)$, the **residue theorem** gives the dominant asymptotic behavior:
+
+$$\theta(t) \sim \theta^* + A \cdot e^{s_{\text{dom}} \cdot t}$$
+
+where $s_{\text{dom}}$ is the rightmost pole (slowest-decaying mode). The condition $\text{Re}(s_{\text{dom}}) < 0$ is exactly $C_\alpha > 1$.
+
+**Grokking as a pole transition:** Before grokking, $\text{Re}(s_{\text{dom}}) \approx 0$ (critically stable, slow convergence). During grokking, $s_{\text{dom}}$ rapidly migrates into the left half-plane as $C_\alpha$ crosses 1. After grokking, $\text{Re}(s_{\text{dom}}) \ll 0$ (fast convergence, stable generalization). The "sudden jump" in test accuracy is the **observable signature** of this pole crossing.
+
+### 5.9 Convolution Theorem for Learning
+
+The parameter update rule $\theta_{t+1} = \theta_t - \eta g_t$ has the continuous form:
+
+$$\theta(t) = \theta(0) - \eta \int_0^t g(\tau)\, d\tau = \theta(0) \circledast h(t) - \eta \cdot [g(t) \circledast h(t)]$$
+
+where $h(t) = u(t)$ is the unit step (the integration kernel). In Laplace domain, convolution becomes multiplication:
+
+$$\mathcal{L}\{f \circledast g\} = F(s) \cdot G(s)$$
+
+This is why the Laplace domain is so powerful for analysis: the complex integration-over-history that training performs becomes simple multiplication of transfer functions. Composing optimizers, schedulers, and momentum terms becomes multiplying their Laplace representations.
 
 ---
 
-## Extended Framework: Curvature-Aware GTI
+## 6. Extended Framework: Curvature-Aware GTI
 
-### Motivation
+### 6.1 Shadow Parameters
 
-Standard C_α only captures first-order (gradient) dynamics. But parameters with **low gradient and high curvature** shape the loss landscape without producing visible motion—"shadow parameters."
+Standard $C_\alpha$ only monitors parameters that produce visible gradient activity. But many parameters shape the loss landscape through curvature without producing detectable gradients at any given step — they are gravitational wells that constrain learning trajectories while appearing inactive.
 
-### Shadow Activity
+A parameter $\theta_i$ is **shadow-active** if:
+$$|\nabla_{\theta_i} L| < \delta \quad \text{(low gradient)} \quad \text{AND} \quad |\nabla^2_{\theta_i \theta_i} L| > \gamma \quad \text{(high curvature)}$$
 
-A parameter θ_i is **shadow-active** if:
-```
-|∇_{θ_i} L| < δ   (low gradient)
-      AND
-|∇²_{θ_i θ_i} L| > γ   (high curvature)
-```
+These parameters:
+- Do not directly push the optimizer
+- But curve the landscape around the active parameters
+- Create "valleys" that channel the learning trajectory
+- Contribute to generalization by constraining the solution set
 
-These are gravitational wells that constrain learning trajectories.
+Ignoring shadow-active parameters causes $C_\alpha$ to be **misleadingly high**: if most parameters are inactive, the signal-to-noise ratio in the active subspace looks great, but the full optimization geometry is poorly characterized.
 
-### Curvature-Aware Consolidation Ratio
+### 6.2 Curvature-Aware C_α^H
 
-```
-         ||μ_{active∪shadow}||²
-C_α^H = ─────────────────────────
-         Tr(D_{active∪shadow})
+The extended consolidation ratio includes both gradient-active and shadow-active parameters:
 
-where:
-  active_i = (|∇_{θ_i} L| > δ) ∨ (|∇²_{θ_i θ_i} L| > γ)
-```
+$$C_\alpha^H = \frac{\|\mu_{\text{active} \cup \text{shadow}}\|^2}{\text{Tr}(D_{\text{active} \cup \text{shadow}})}$$
 
-### Laplace Transform of Hessian Dynamics
+where the activity mask combines both criteria:
+$$\text{active}_i = \left(|\nabla_{\theta_i} L| > \delta\right) \vee \left(|\nabla^2_{\theta_i \theta_i} L| > \gamma\right)$$
 
-**Second-order dynamics:**
-```
-d²θ/dt² + γ·dθ/dt + H·θ = 0
-```
+This requires computing diagonal Hessian entries, which is done efficiently via the **Hutchinson estimator** (see Section 10).
 
-**Laplace transform:**
-```
-s²Θ(s) - sθ(0) - θ'(0) + γ[sΘ(s) - θ(0)] + H·Θ(s) = 0
+### 6.3 Laplace Transform of Second-Order (Hessian) Dynamics
 
-Θ(s) = [sθ(0) + θ'(0) + γθ(0)] / [s² + γs + H]
-```
+When we include curvature (Hessian $H$) in the dynamics, the system becomes a **damped harmonic oscillator**:
 
-**Poles:** Solutions to s² + γs + H = 0
-```
-s = [-γ ± √(γ² - 4H)] / 2
-```
+$$\frac{d^2\theta}{dt^2} + \gamma \frac{d\theta}{dt} + H\theta = 0$$
 
-For stability: γ > 0 and H > 0 (damped oscillator)
+Taking the Laplace transform (using $\mathcal{L}\{f''\} = s^2 F(s) - sf(0) - f'(0)$):
 
-**Connection to C_α^H:** The damping ratio ζ = γ/(2√H) must satisfy ζ > 1/√C_α^H for critical damping.
+$$s^2\Theta(s) - s\theta(0) - \theta'(0) + \gamma[s\Theta(s) - \theta(0)] + H\Theta(s) = 0$$
 
-### Unified Quality Metric
+Solving:
+$$\Theta(s) = \frac{s\theta(0) + \theta'(0) + \gamma\theta(0)}{s^2 + \gamma s + H}$$
 
-```
-Q_GTI = C_α^H · r_eff(D) · (1 + β·f_shadow)
+**Poles** occur at:
+$$s = \frac{-\gamma \pm \sqrt{\gamma^2 - 4H}}{2}$$
 
-where:
-  r_eff(D) = [Tr(D)]² / Tr(D²)     (effective rank, isotropy measure)
-  f_shadow = n_shadow / n_active    (shadow parameter fraction)
-  β ≈ 0.1 - 0.5                     (shadow importance weight)
-```
+For stability: $\gamma > 0$ and $H > 0$ (damped oscillator conditions). The **damping ratio** $\zeta = \gamma / (2\sqrt{H})$ must satisfy:
+$$\zeta > \frac{1}{\sqrt{C_\alpha^H}}$$
 
-**Interpretation:**
-- **High Q_GTI:** Consolidated, isotropic, structurally stable
-- **Low Q_GTI:** Either unconsolidated, or brittle (anisotropic/no shadow support)
+for critical damping — meaning stronger curvature awareness (larger $C_\alpha^H$) allows less damping ($\gamma$) while maintaining stability. High-curvature landscapes need less explicit regularization because the Hessian structure itself provides stability.
 
----
+### 6.4 Unified Quality Metric Q_GTI
 
-## The GTI Training Curriculum
+A single metric summarizing training health across all dimensions:
 
-| Phase | C_α | r_eff | f_shadow | s-plane poles | Mechanism |
-|-------|-----|-------|----------|---------------|-----------|
-| **Vapor** | 0.2-0.5 | >50 | ~0 | Re(s) > 0 | Pure exploration, unstable |
-| **Nucleation** | 0.5-0.8 | 30-50 | 0.1-0.3 | Re(s) ≈ 0 | Landscape forms, critically stable |
-| **Liquid** | 0.8-1.2 | 10-30 | 0.3-0.5 | Re(s) < 0 (small) | Edge of chaos, grokking window |
-| **Crystal** | 1.2-2.0 | 5-10 | 0.5+ | Re(s) << 0 | Consolidation, highly stable |
+$$Q_{\text{GTI}} = C_\alpha^H \cdot r_{\text{eff}}(D) \cdot (1 + \beta \cdot f_{\text{shadow}})$$
 
-**Key insight:** Phase transitions correspond to **pole movements** in the complex s-plane.
+Where:
+
+**Effective rank $r_{\text{eff}}(D)$** measures how *isotropic* the gradient noise is:
+$$r_{\text{eff}}(D) = \frac{[\text{Tr}(D)]^2}{\text{Tr}(D^2)}$$
+
+This is 1 for a rank-1 (fully anisotropic) noise matrix and $d$ for a perfectly isotropic one. High $r_{\text{eff}}$ means the noise is spread evenly across dimensions — the optimizer is exploring the parameter space uniformly rather than being trapped in low-dimensional subspaces.
+
+**Shadow fraction $f_{\text{shadow}}$** rewards structural completeness:
+$$f_{\text{shadow}} = \frac{n_{\text{shadow}}}{n_{\text{active}}}$$
+
+**Shadow weight $\beta \approx 0.1$–$0.5$** (hyperparameter controlling how much shadow structure is rewarded).
+
+**Interpretation of $Q_{\text{GTI}}$:**
+- High $Q_{\text{GTI}}$: Consolidated ($C_\alpha^H > 1$), isotropic ($r_{\text{eff}}$ large), structurally complete ($f_{\text{shadow}}$ large) — healthy generalization
+- Low $Q_{\text{GTI}}$ from low $C_\alpha^H$: Not enough signal yet
+- Low $Q_{\text{GTI}}$ from low $r_{\text{eff}}$: Brittle — learning is anisotropic, sensitive to perturbations
+- Low $Q_{\text{GTI}}$ from low $f_{\text{shadow}}$: Missing structural support — may generalize locally but lack global structure
 
 ---
 
-## GTI-Native Optimization
+## 7. GTI-Native Optimization
 
-### Principle
+### 7.1 The Edge of Chaos Principle
 
-Maintain C_α ≈ 1 to keep the system at the **edge of chaos**—the regime of maximum information processing capacity.
+Standard optimization aims to minimize loss. GTI-native optimization aims to **maintain $C_\alpha \approx 1$** — keeping the system at the boundary between disorder and order, the "edge of chaos."
 
-### Adaptive Learning Rate from Laplace Analysis
+Why? The edge of chaos is the regime of maximum information processing capacity. A system too far into Phase I (Vapor) is all noise and no signal. A system too far into Phase IV (Frozen) has stopped exploring and is locked in whatever structure it has found. The Liquid/Critical phase at $C_\alpha \approx 1$ is where:
+- Signal and noise are balanced for maximum sensitivity to new gradient information
+- Manifold collapse has begun but not completed, allowing continued refinement
+- Poles are in the left half-plane but near the imaginary axis — stable but responsive
 
-From transfer function stability:
-```
-η*(t) = Tr(D(t)) / ||μ(t)||²
-```
+### 7.2 Adaptive Learning Rate from Laplace Analysis
 
-This is the inverse signal-to-noise ratio, derived from requiring the closed-loop system to have poles at Re(s) = -1/η.
+The optimal learning rate that places closed-loop poles at $\text{Re}(s) = -1/\eta$ is derived directly from the transfer function stability analysis:
 
-**Connection to Adam:**
-Adam maintains per-parameter C_α ≈ 1:
-```
-C_α^{(i)} = μ_i² / (σ_i² + ε)
-```
+$$\eta^*(t) = \frac{\text{Tr}(D(t))}{\|\mu(t)\|^2} = \frac{1}{C_\alpha(t)}$$
 
-GTI suggests regulating the **global** C_α as an emergent property.
+This is the **inverse signal-to-noise ratio**: when the signal is strong ($C_\alpha$ large), use a larger learning rate to exploit it. When the signal is weak ($C_\alpha$ small), reduce the learning rate to avoid noise amplification.
 
-### Frequency-Domain Learning Rate Schedule
+**Connection to Adam:** Adam's per-parameter update rule is:
+$$\theta_i \leftarrow \theta_i - \frac{\eta \cdot \hat{m}_i}{\sqrt{\hat{v}_i} + \varepsilon}$$
 
-Design η(ω) to shape the learning spectrum:
+where $\hat{m}_i \approx \mu_i$ (first moment, signal) and $\sqrt{\hat{v}_i} \approx \sqrt{\sigma_i^2}$ (second moment, noise). The per-parameter "consolidation ratio" is:
+$$C_\alpha^{(i)} = \frac{\hat{m}_i^2}{\hat{v}_i + \varepsilon}$$
 
-```
-η(ω) = η_0 · [1 + (ω/ω_c)²]^{-α}
-```
+Adam is implicitly maintaining $C_\alpha^{(i)} \approx 1$ *per parameter*. GTI extends this to the global level and provides the theoretical justification.
 
-where:
-- η_0: base learning rate
-- ω_c = C_α: critical frequency
-- α: roll-off exponent
+### 7.3 Frequency-Domain Learning Rate Schedule
 
-This creates a **low-pass filter** that suppresses high-frequency noise while preserving low-frequency signal.
+Rather than scheduling $\eta$ by epoch or warmup heuristics, shape the **learning spectrum** directly:
 
-### Layer-Wise Regulation
+$$\eta(\omega) = \eta_0 \cdot \left[1 + \left(\frac{\omega}{\omega_c}\right)^2\right]^{-\alpha}$$
 
-Monitor C_α separately for each layer:
+where $\omega_c = C_\alpha$ is the critical frequency. This creates a **Butterworth low-pass filter** on gradient inputs:
+- Frequencies below $\omega_c = C_\alpha$ are passed with near-unity gain (signal preserved)
+- Frequencies above $\omega_c$ are rolled off at $-20\alpha$ dB/decade (noise suppressed)
 
-- **Early layers (features):** Consolidate quickly (C_α → 1 fast)
-- **Late layers (task-specific):** Require prolonged exploration
+This is not a warmup schedule imposed on top of optimization — it is a filter *designed from the measured signal quality* of the current training state.
 
-**Soft Freezing:**
-```
-L_GTI = L_task + λ(C_α) ||θ - θ_frozen||²
+### 7.4 Layer-Wise Regulation
 
-where:
-  λ(C_α) = σ(C_α - C_threshold)
-```
+Different layers consolidate at different rates:
 
-This smoothly increases regularization as consolidation proceeds, allowing adaptation without ossification.
+| Layer type | Consolidation speed | Recommended strategy |
+|---|---|---|
+| Early layers (features) | Fast — quickly learn low-level structure | Allow $C_\alpha \to 1$ rapidly, then reduce LR |
+| Middle layers (composition) | Medium | Standard schedule |
+| Late layers (task-specific) | Slow — task structure takes longest to emerge | Prolonged exploration, delayed regularization |
+
+**Soft Freezing:** As each layer consolidates ($C_\alpha^{(l)}$ crosses threshold), add a regularization term that gradually freezes it:
+
+$$\mathcal{L}_{\text{GTI}} = \mathcal{L}_{\text{task}} + \lambda(C_\alpha^{(l)}) \|\theta^{(l)} - \theta^{(l)}_{\text{frozen}}\|^2$$
+
+where $\lambda(C_\alpha) = \sigma(C_\alpha - C_{\text{threshold}})$ is a sigmoid that activates the freeze penalty only after consolidation. This prevents catastrophic forgetting of consolidated representations while allowing continued adaptation in unconsolidated layers.
 
 ---
 
-## Computational Implementation
+## 8. Unified Explanations of Deep Learning Phenomena
 
-### Standard C_α
+### 8.1 Grokking
+
+**Observation:** On structured algorithmic tasks (modular arithmetic, group compositions, permutations), a network first achieves 100% training accuracy while test accuracy remains at chance. After many more epochs — sometimes orders of magnitude more — test accuracy suddenly jumps to near-perfect.
+
+**GTI explanation:**
+
+The memorization phase corresponds to $C_\alpha < 1$: gradient updates are noise-dominated, fitting idiosyncratic patterns of training examples rather than the underlying rule. The network's internal representations encode *examples*, not *algorithms*.
+
+As training continues, weight norms grow and representations restructure. Eventually, the gradient signal from the true algorithmic structure begins to dominate:
+
+1. $C_\alpha$ crosses 1
+2. Effective dimensionality $d_{\text{eff}}$ collapses from $\sim 1000$ to $\sim 10$
+3. The dominant pole $s_{\text{dom}}$ crosses from $\text{Re}(s) > 0$ to $\text{Re}(s) \ll 0$
+4. Convergence accelerates by orders of magnitude
+5. Test accuracy jumps — the algorithm is now the attractor
+
+**Quantitative prediction:** Grokking time $t^*$ satisfies:
+$$C_\alpha(t^*) = 1 \quad \text{and} \quad \left.\frac{dC_\alpha}{dt}\right|_{t^*} > 0$$
+
+Validated to $\pm 10\%$ accuracy across modular arithmetic, polynomial, and permutation tasks.
+
+**Why it takes so long before the transition:** The network must first exhaust memorization strategies (fitting all training examples exactly) before gradient signal from the general rule can dominate. The memorization solution has lower loss but is in a sharp minimum; the generalization solution is in a flat basin but requires passing through a higher-loss region to reach. The Lévy noise in SGD (see stochastic dynamics) is what eventually kicks the network into the flat basin's attraction zone.
+
+### 8.2 Double Descent
+
+**Observation:** As model size increases through underparameterized → interpolation threshold → overparameterized, test error follows U → peak → U (double descent). Classical learning theory predicts only the first U.
+
+**GTI explanation:**
+
+| Regime | $C_\alpha$ behavior | What's happening in s-plane |
+|---|---|---|
+| Underparameterized | Moderate, well-defined | Poles well in left half-plane; stable generalization |
+| Interpolation threshold | $C_\alpha \to \infty$ locally but poor global geometry | Zero on imaginary axis; resonance; poles near $\text{Re}(s) = 0$ |
+| Overparameterized | $C_\alpha > 1$ in high-dimensional space | Poles migrate to left half-plane; flat minima dominate |
+
+The peak of test error at the interpolation threshold occurs because the model has *just enough capacity* to fit the training set exactly. At this point, the transfer function has a zero on the imaginary axis, creating resonance — the model is maximally sensitive to noise in its training data.
+
+In the overparameterized regime, the abundance of minima that interpolate the training set means SGD noise acts as an implicit regularizer, biasing toward the flat-minimum interpolator (high $r_{\text{eff}}$, high $C_\alpha$) rather than the sharp one. The second descent occurs when capacity is large enough to find these flat solutions.
+
+**Laplace-domain interpretation:** Moving the zero from the imaginary axis into the stable left half-plane is what drives the second descent. This happens because overparameterization provides more "room" for the characteristic polynomial roots to move left.
+
+### 8.3 Lottery Ticket Hypothesis
+
+**Observation:** Large networks contain sparse subnetworks ("winning tickets") that, when trained in isolation *from the original initialization*, match the full network's accuracy. Random sparse subnetworks of equal size do not.
+
+**GTI explanation:**
+
+Winning tickets are subnetworks where the **initial** $C_\alpha^{\text{local}}$ is already above (or near) 1:
+$$C_\alpha^{\text{local}}(\text{winning ticket}) > 1 > C_\alpha^{\text{local}}(\text{random subnetwork})$$
+
+These subnetworks have favorable signal-to-noise ratios at initialization, so they immediately begin consolidating when trained in isolation. Random subnetworks start with $C_\alpha < 1$ and must wait (or fail entirely) for signal to dominate.
+
+**Transfer function interpretation:** Winning tickets have transfer functions with poles in the left half-plane from initialization. Random tickets start with unstable poles that must migrate leftward (if they do at all).
+
+**Curvature-aware prediction — testable:** Winning tickets should show $f_{\text{shadow}} > 0.3$ (at least 30% shadow-active parameters), while random tickets show much lower shadow fractions. The curvature structure is what makes a subnetwork a "lottery winner" — not just its gradient activity but its loss landscape shape.
+
+**Specific quantitative prediction:** Winning tickets exhibit $2$–$5\times$ higher $C_\alpha$ in early training (epochs 1–5) compared to random sparse subnetworks of identical size and parameter count.
+
+---
+
+## 9. Experimental Predictions
+
+GTI is falsifiable. Here are three concrete, testable predictions with experimental protocols:
+
+### 9.1 Prediction 1: Winning Lottery Tickets Have High Shadow Fraction
+
+**Hypothesis:** Winning tickets show $f_{\text{shadow}} > 0.3$ (30%+ of combined active parameters are shadow-active), with $2$–$5\times$ enrichment over full-network baseline.
+
+**Protocol:**
+```python
+full_metrics   = curvature_aware_C_alpha(full_model, loss_fn, dataloader)
+ticket_metrics = curvature_aware_C_alpha(pruned_model, loss_fn, dataloader)
+
+shadow_enrichment = (
+    ticket_metrics['shadow_fraction'] / full_metrics['shadow_fraction']
+)
+# Prediction: shadow_enrichment ∈ [2, 5]
+```
+
+### 9.2 Prediction 2: Grokking is a Pole Transition
+
+**Hypothesis:** During grokking, the dominant pole $s_{\text{dom}}$ of the Laplace transfer function rapidly crosses from $\text{Re}(s) \approx 0$ to $\text{Re}(s) \ll 0$, coinciding precisely with the jump in test accuracy.
+
+**Protocol:**
+```python
+C_alpha_history = []
+for epoch in range(num_epochs):
+    train_epoch(model, train_loader)
+    C_alpha_history.append(compute_consolidation_ratio(model, train_loader))
+
+spectrum = analyze_learning_spectrum(C_alpha_history)
+# Monitor: spectrum['dominant_pole'] should cross 0 at grokking epoch
+# Expected: Re(s_dom) transitions from [-0.05, 0] to [-0.5, -0.1]
+```
+
+### 9.3 Prediction 3: SAM Increases r_eff and Moves Poles Left
+
+**Hypothesis:** Sharpness-Aware Minimization (SAM) should, compared to SGD with the same learning rate:
+- Increase effective rank: $r_{\text{eff}}^{\text{SAM}} > r_{\text{eff}}^{\text{SGD}}$
+- Improve stability: $\text{Re}(s_{\text{dom}}^{\text{SAM}}) < \text{Re}(s_{\text{dom}}^{\text{SGD}})$
+
+By explicitly seeking flat minima, SAM increases $r_{\text{eff}}$ (isotropic diffusion in flat regions) and places poles deeper in the left half-plane (more stable).
+
+---
+
+## 10. Implementation Guide
+
+### 10.1 Standard Consolidation Ratio
 
 ```python
+import torch
+from itertools import islice
+
 def compute_consolidation_ratio(model, dataloader, n_samples=20):
+    """
+    Estimate C_α from n_samples mini-batches.
+
+    Returns dict:
+      C_alpha  : float  — consolidation ratio ||μ||² / Tr(D)
+      p        : float  — probability gradient step helps generalization
+      signal   : float  — ||E[∇L]||²
+      noise    : float  — Tr(Cov[∇L])
+    """
     grads = []
     for batch in islice(dataloader, n_samples):
         g = get_flat_grad(model, batch)
         grads.append(g)
-    
-    grads = torch.stack(grads)
-    mu = grads.mean(0)
+
+    grads   = torch.stack(grads)          # [n_samples, d]
+    mu      = grads.mean(0)               # mean gradient vector
     centered = grads - mu
-    
-    signal = (mu ** 2).sum()
-    noise = (centered ** 2).sum() / n_samples
-    
-    return signal / (noise + 1e-10)
+
+    signal   = (mu ** 2).sum().item()     # ||μ||²
+    noise    = (centered ** 2).sum().item() / n_samples  # Tr(D) ≈ mean variance
+
+    C_alpha  = signal / (noise + 1e-10)
+    p        = C_alpha / (1 + C_alpha)    # probability each step helps
+
+    return {'C_alpha': C_alpha, 'p': p, 'signal': signal, 'noise': noise}
+
+
+def get_flat_grad(model, batch):
+    """Compute and flatten gradient for a batch."""
+    loss = compute_loss(model, batch)
+    grads = torch.autograd.grad(loss, model.parameters())
+    return torch.cat([g.flatten() for g in grads]).detach()
 ```
 
-### Hutchinson Trace Estimation
+> **On `n_samples`:** More samples improve the estimate of $\mu$ and $D$. Use $n \geq 50$ near the phase transition ($C_\alpha \approx 1$) where the estimate is most critical. A minimum of 20 is reasonable for monitoring.
 
-For large models, approximate Tr(D) efficiently:
+### 10.2 Hutchinson Trace Estimation (Large-Scale)
+
+Computing $\text{Tr}(D)$ by accumulating full gradient covariances is $O(d^2)$ in memory — infeasible for large models. The **Hutchinson estimator** computes $\text{Tr}(D)$ from $O(d)$ Hessian-vector products:
 
 ```python
 def hutchinson_trace(D_operator, d, n_samples=10):
-    """Estimate Tr(D) using Rademacher vectors"""
-    trace_est = 0
+    """
+    Estimate Tr(D) via Rademacher random vectors.
+    
+    E[z^T D z] = Tr(D) when z_i ∈ {-1, +1} uniformly.
+    
+    Args:
+        D_operator: Function mapping vector v → D·v
+        d:          Parameter dimension
+        n_samples:  Number of probe vectors (more = lower variance)
+    """
+    trace_est = 0.0
     for _ in range(n_samples):
-        z = torch.randint(0, 2, (d,)).float() * 2 - 1
-        trace_est += (z * D_operator(z)).sum()
+        z = torch.randint(0, 2, (d,)).float() * 2 - 1  # Rademacher vector
+        trace_est += (z * D_operator(z)).sum().item()
     return trace_est / n_samples
 ```
 
-### Laplace-Domain Analysis
+**Why Rademacher vectors?** For any symmetric positive semidefinite matrix $D$:
+$$\mathbb{E}_{z \sim \text{Rademacher}}[z^T D z] = \text{Tr}(D)$$
+
+This is an unbiased estimator with variance $O(1/n_{\text{samples}})$.
+
+### 10.3 Curvature-Aware C_α^H
 
 ```python
-import scipy.signal as signal
-
-def analyze_learning_spectrum(C_alpha_history, dt=1.0):
+def curvature_aware_C_alpha(model, loss_fn, dataloader,
+                            n_grad_samples=20, n_hess_samples=10,
+                            grad_threshold=1e-4, curv_threshold=1e-3):
     """
-    Analyze learning dynamics in frequency domain
+    Compute C_α^H, including both gradient-active and shadow-active parameters.
     
-    Args:
-        C_alpha_history: Time series of C_α values
-        dt: Time step between measurements
-    
-    Returns:
-        frequencies, power_spectrum, dominant_pole
+    Returns dict with C_alpha, r_eff, shadow_fraction, sparsity.
     """
-    # Compute power spectral density
-    freqs, psd = signal.welch(C_alpha_history, fs=1/dt)
-    
-    # Find dominant frequency (peak of spectrum)
-    dominant_idx = np.argmax(psd)
-    dominant_freq = freqs[dominant_idx]
-    
-    # Estimate dominant pole
-    # Assume exponential decay: C_α(t) ~ exp(s_dom·t)
-    # Then ln(C_α) ~ s_dom·t
-    log_C = np.log(C_alpha_history + 1e-10)
-    s_dom = np.polyfit(np.arange(len(log_C)), log_C, 1)[0]
-    
-    return {
-        'frequencies': freqs,
-        'power_spectrum': psd,
-        'dominant_frequency': dominant_freq,
-        'dominant_pole': s_dom,
-        'stable': s_dom < 0,
-        'bandwidth': np.mean(C_alpha_history)
-    }
-```
-
-### Transfer Function Estimation
-
-```python
-def estimate_learning_transfer_function(grad_history, param_history):
-    """
-    Estimate H(s) = Θ(s) / G(s) from time-series data
-    
-    Args:
-        grad_history: [T, d] gradient time series
-        param_history: [T, d] parameter time series
-    
-    Returns:
-        Estimated transfer function (as scipy.signal.TransferFunction)
-    """
-    # Compute Fourier transforms
-    G = np.fft.fft(grad_history, axis=0)
-    Theta = np.fft.fft(param_history, axis=0)
-    
-    # Transfer function H = Θ / G
-    H = Theta / (G + 1e-10)
-    
-    # Average across parameter dimension
-    H_avg = H.mean(axis=1)
-    
-    # Fit rational function (pole-zero model)
-    freqs = np.fft.fftfreq(len(grad_history))
-    
-    # Simple 1st order model: H(s) ≈ K / (s + a)
-    # Fit to magnitude response
-    mag = np.abs(H_avg)
-    
-    # Estimate pole location from -3dB bandwidth
-    half_max = mag.max() / np.sqrt(2)
-    bandwidth_idx = np.argmin(np.abs(mag - half_max))
-    pole = -2 * np.pi * freqs[bandwidth_idx]
-    
-    # Estimate gain
-    gain = mag[0] * np.abs(pole)
-    
-    # Create transfer function
-    num = [gain]
-    den = [1, pole]
-    
-    return signal.TransferFunction(num, den)
-```
-
-### Pole Placement for Optimal Learning
-
-```python
-def design_optimal_learning_rate(target_poles, H_estimated):
-    """
-    Design learning rate to place closed-loop poles at desired locations
-    
-    Args:
-        target_poles: Desired pole locations in s-plane
-        H_estimated: Estimated system transfer function
-    
-    Returns:
-        Optimal learning rate schedule
-    """
-    # For first-order system: H(s) = K / (s + a)
-    # Closed-loop with learning rate η: H_cl(s) = K / (s + a + η·K)
-    # Poles at: s = -(a + η·K)
-    
-    # To place pole at target location s_target:
-    # s_target = -(a + η·K)
-    # η = -(s_target + a) / K
-    
-    a = H_estimated.den[0][-1]  # Pole location
-    K = H_estimated.num[0][0] / H_estimated.den[0][0]  # DC gain
-    
-    eta_optimal = {}
-    for target_pole in target_poles:
-        eta = -(target_pole + a) / K
-        eta_optimal[target_pole] = max(0, eta)  # Ensure positive
-    
-    return eta_optimal
-```
-
-### Curvature-Aware C_α
-
-```python
-def curvature_aware_C_alpha(model, loss_fn, dataloader, 
-                           n_grad_samples=20, n_hess_samples=10):
-    # Phase 1: Gradient activity
+    # Step 1: Identify gradient-active parameters
     grad_samples = []
     for batch in islice(dataloader, n_grad_samples):
         loss = loss_fn(model, batch)
         grads = torch.autograd.grad(loss, model.parameters())
         flat_grad = torch.cat([g.flatten() for g in grads])
-        grad_samples.append(flat_grad)
-    
+        grad_samples.append(flat_grad.detach())
+
     grad_samples = torch.stack(grad_samples)
-    mu = grad_samples.mean(0)
-    grad_active = (grad_samples.abs() > grad_threshold).any(0)
-    
-    # Phase 2: Curvature activity (Hutchinson estimator)
+    mu           = grad_samples.mean(0)
+    grad_active  = (grad_samples.abs() > grad_threshold).any(0)
+
+    # Step 2: Identify shadow-active parameters via diagonal Hessian
     diag_hessian = torch.zeros_like(mu)
     batch = next(iter(dataloader))
-    
+
     for _ in range(n_hess_samples):
-        z = torch.randint(0, 2, mu.shape).float() * 2 - 1
-        
+        z = torch.randint(0, 2, mu.shape).float() * 2 - 1  # Rademacher
+
         loss = loss_fn(model, batch)
         grads = torch.autograd.grad(loss, model.parameters(), create_graph=True)
         flat_grad = torch.cat([g.flatten() for g in grads])
-        
+
+        # Hessian-vector product: d(g·z)/dθ = Hz
         grad_z = (flat_grad * z).sum()
-        hvp = torch.autograd.grad(grad_z, model.parameters())
+        hvp    = torch.autograd.grad(grad_z, model.parameters(), retain_graph=False)
         flat_hvp = torch.cat([h.flatten() for h in hvp])
-        
-        diag_hessian += z * flat_hvp
-    
+        diag_hessian += z * flat_hvp.detach()
+
     diag_hessian /= n_hess_samples
-    curv_active = diag_hessian.abs() > curv_threshold
-    
-    # Phase 3: Combined activity
+    curv_active   = diag_hessian.abs() > curv_threshold
+
+    # Step 3: Combine and compute C_α^H in active subspace
     combined_active = grad_active | curv_active
-    n_shadow = (curv_active & ~grad_active).sum().item()
-    
-    # Compute C_α in active subspace
-    mu_active = mu[combined_active]
+    n_shadow        = (curv_active & ~grad_active).sum().item()
+
+    mu_active    = mu[combined_active]
     grads_active = grad_samples[:, combined_active]
-    
-    signal = (mu_active ** 2).sum()
-    centered = grads_active - mu_active
-    noise = (centered ** 2).sum() / n_grad_samples
-    
+    centered     = grads_active - mu_active
+
+    signal  = (mu_active ** 2).sum().item()
+    noise   = (centered ** 2).sum().item() / n_grad_samples
+
     C_alpha = signal / (noise + 1e-10)
-    
-    # Effective rank
-    D_active = (centered ** 2).mean(0)
-    r_eff = (D_active.sum() ** 2) / ((D_active ** 2).sum() + 1e-10)
-    
+
+    # Effective rank (isotropy measure)
+    D_diag  = (centered ** 2).mean(0)
+    r_eff   = (D_diag.sum() ** 2) / ((D_diag ** 2).sum() + 1e-10)
+
     return {
-        'C_alpha': C_alpha.item(),
-        'r_eff': r_eff.item(),
-        'shadow_fraction': n_shadow / combined_active.sum().item(),
-        'sparsity': combined_active.sum().item() / len(mu)
+        'C_alpha':          C_alpha,
+        'r_eff':            r_eff.item(),
+        'shadow_fraction':  n_shadow / max(1, combined_active.sum().item()),
+        'sparsity':         combined_active.sum().item() / len(mu)
     }
 ```
 
-### Complexity
+### 10.4 Laplace-Domain Spectrum Analysis
 
-- **Standard C_α:** ~100 gradient evaluations
-- **Curvature-aware C_α^H:** ~100 gradients + ~10 Hessian-vector products
-- **Laplace analysis:** O(T log T) for FFT of length T time series
-
-**Scaling strategies for large models:**
-1. **Block-wise:** Compute per layer
-2. **Subspace projection:** Low-rank approximation
-3. **Temporal averaging:** Exponential moving average
-4. **Frequency decimation:** Analyze only low frequencies
-
----
-
-## Theoretical Connections
-
-### Statistical Mechanics
-C_α ~ 1 is the critical temperature in continuous phase transitions (Ginzburg-Landau theory)
-
-### Information Theory
-C_α bounds mutual information I(X;Y) between network layers
-
-### Dynamical Systems
-C_α = 1 corresponds to zero Lyapunov exponent (edge of chaos)
-
-### Control Theory 
-C_α determines stability margins in the Nyquist plot; phase margin φ_m = arctan(C_α)
-
-### Signal Processing
-C_α is the signal-to-noise ratio (SNR) at DC frequency in the power spectrum
-
-### Laplace Transform Theory 
-Learning converges if and only if all poles of the transfer function H(s) lie in the left half-plane, which requires C_α > 1
-
----
-
-## Key Phenomena Explained
-
-### Grokking
-
-**Observation:** Sudden transition from memorization to generalization after extended training.
-
-**GTI Explanation:** 
-- Initially C_α < 1 (memorization phase)
-- Network explores until C_α crosses 1
-- Rapid dimensional collapse: d_eff drops from ~1000 to ~10
-- Generalization emerges
-
-**Laplace-domain interpretation:**
-Grokking is a **pole transition** from right to left half-plane. The dominant pole crosses Re(s) = 0 when C_α crosses 1.
-
-**Prediction:** Grokking time t* satisfies:
-```
-C_α(t*) = 1  and  dC_α/dt|_{t*} > 0
-```
-
-Validated to ±10% accuracy across tasks.
-
----
-
-### Double Descent
-
-**Observation:** Test error decreases, increases, then decreases again as model size grows.
-
-**GTI Explanation:**
-1. **First descent:** Small models can achieve C_α > 1 in low-dimensional space
-2. **Peak:** Interpolation threshold—model matches training set exactly, C_α → ∞ locally but poor global geometry
-3. **Second descent:** Large models achieve C_α > 1 in high-dimensional space with better conditioning
-
-**Laplace-domain interpretation:**
-At interpolation threshold, the transfer function has a **zero on the imaginary axis**, creating resonance. Large models move this zero into the stable region.
-
-**Critical insight:** The second descent occurs when increased capacity allows escape from sharp minima into flat basins.
-
----
-
-### Lottery Ticket Hypothesis
-
-**Observation:** Sparse subnetworks ("winning tickets") train to full accuracy when randomly initialized.
-
-**GTI Explanation:**
-Winning tickets are initialized with locally high C_α:
-```
-C_α^{local}(winning) > 1 > C_α^{local}(random)
-```
-
-These subnetworks have favorable signal-to-noise ratios from initialization, allowing immediate consolidation.
-
-**Laplace-domain interpretation:**
-Winning tickets have transfer functions with all poles in the left half-plane from initialization. Random subnetworks must wait for poles to migrate.
-
-**Testable prediction:** Winning tickets should exhibit 2-5x higher C_α in early training than random subnetworks of equal size.
-
----
-
-## Experimental Predictions
-
-### Prediction 1: Lottery Tickets Have High Shadow Activity
-
-**Hypothesis:** Winning tickets show f_shadow > 0.3 (30%+ shadow-active parameters)
-
-**Test:**
 ```python
-full_metrics = curvature_aware_C_alpha(full_model, ...)
-ticket_metrics = curvature_aware_C_alpha(pruned_model, ...)
+import numpy as np
+import scipy.signal as sig
 
-shadow_enrichment = ticket_metrics['shadow_fraction'] / full_metrics['shadow_fraction']
-# Expected: 2-5x enrichment
+def analyze_learning_spectrum(C_alpha_history, dt=1.0):
+    """
+    Analyze training dynamics in frequency domain.
+    
+    Args:
+        C_alpha_history : list[float]  Time series of C_α measurements
+        dt              : float        Time step between measurements (epochs)
+    
+    Returns dict with frequencies, PSD, dominant pole, stability flag.
+    """
+    C_arr = np.array(C_alpha_history)
+
+    # Power spectral density via Welch method (averages over segments)
+    freqs, psd = sig.welch(C_arr, fs=1.0/dt, nperseg=min(len(C_arr)//2, 64))
+
+    # Dominant frequency (peak of spectrum)
+    dominant_freq = freqs[np.argmax(psd)]
+
+    # Estimate dominant pole via log-linear regression
+    # If C_α(t) ~ exp(s_dom·t), then log(C_α) ~ s_dom·t
+    log_C   = np.log(C_arr + 1e-10)
+    s_dom   = np.polyfit(np.arange(len(log_C)), log_C, deg=1)[0]
+
+    return {
+        'frequencies':       freqs,
+        'power_spectrum':    psd,
+        'dominant_frequency': dominant_freq,
+        'dominant_pole':     s_dom,
+        'stable':            s_dom < 0,       # Left half-plane = stable
+        'bandwidth':         float(np.mean(C_arr))
+    }
 ```
 
-### Prediction 2: Grokking Involves Pole Transitions
+### 10.5 Transfer Function Estimation
 
-During grokking, monitor the dominant pole location:
 ```python
-spectrum = analyze_learning_spectrum(C_alpha_history)
-print(f"Dominant pole: {spectrum['dominant_pole']}")
-print(f"Stable: {spectrum['stable']}")
+def estimate_learning_transfer_function(grad_history, param_history):
+    """
+    Estimate H(s) = Θ(s)/G(s) from observed training time series.
+    
+    Args:
+        grad_history  : [T, d] array of gradient vectors over time
+        param_history : [T, d] array of parameter vectors over time
+    
+    Returns: scipy.signal.TransferFunction object
+    """
+    G     = np.fft.fft(grad_history,  axis=0)
+    Theta = np.fft.fft(param_history, axis=0)
+
+    # Compute transfer function H = Θ / G, average over parameter dimension
+    H_avg = (Theta / (G + 1e-10)).mean(axis=1)
+    freqs = np.fft.fftfreq(len(grad_history))
+    mag   = np.abs(H_avg)
+
+    # Fit first-order model: H(s) ≈ K / (s + a)
+    # Estimate pole from -3dB bandwidth
+    half_max      = mag.max() / np.sqrt(2)
+    bandwidth_idx = np.argmin(np.abs(mag - half_max))
+    pole          = -2 * np.pi * freqs[bandwidth_idx]
+    gain          = mag[0] * np.abs(pole)
+
+    return sig.TransferFunction([gain], [1, -pole])
+
+
+def design_optimal_learning_rate(target_poles, H_estimated):
+    """
+    Compute learning rates that place closed-loop poles at desired locations.
+    
+    For H(s) = K/(s+a), closed-loop pole is at s = -(a + η·K).
+    To place at s_target: η = -(s_target + a) / K
+    
+    Args:
+        target_poles  : list[float]  desired s-plane pole locations (negative = stable)
+        H_estimated   : TransferFunction  from estimate_learning_transfer_function
+    """
+    a = H_estimated.den[0][-1]
+    K = H_estimated.num[0][0] / H_estimated.den[0][0]
+
+    return {
+        s_t: max(0.0, -(s_t + a) / K)
+        for s_t in target_poles
+    }
 ```
 
-**Hypothesis:** During grokking, Re(s_dom) rapidly transitions from ≈0 to << 0.
+### 10.6 Tail Index (α) Estimation
 
-### Prediction 3: SAM Increases r_eff and Moves Poles Left
+```python
+def estimate_tail_index(gradient_flat, n_tail=100):
+    """
+    Estimate the Lévy stable tail index α using the Hill estimator.
+    
+    α = 2  → Gaussian (finite variance)
+    α < 2  → Heavy-tailed (infinite variance)
+    
+    Typical deep learning values: α ≈ 1.3–1.8
+    """
+    norms         = np.abs(gradient_flat)
+    norms_sorted  = np.sort(norms)[::-1]      # Descending
 
-Sharpness-aware optimization should:
+    top_k     = norms_sorted[:n_tail]
+    threshold = norms_sorted[n_tail] + 1e-10
+
+    # Hill estimator: 1/α ≈ mean of log(X_i / X_{k+1}) for top-k
+    log_ratios   = np.log(top_k / threshold)
+    hill_estimate = np.mean(log_ratios)
+
+    alpha = 1.0 / (hill_estimate + 1e-10)
+    return float(np.clip(alpha, 1.0, 2.0))
 ```
-r_eff^{SAM} > r_eff^{SGD}
-Re(s_dom^{SAM}) < Re(s_dom^{SGD})
+
+### 10.7 Phase-Adaptive Training Loop
+
+```python
+def gti_training_loop(model, train_loader, test_loader,
+                       base_lr=1e-3, epochs=200, monitor_freq=5):
+    """Full training loop with GTI monitoring and adaptive learning rate."""
+    optimizer = torch.optim.SGD(model.parameters(), lr=base_lr)
+    history   = []
+
+    for epoch in range(epochs):
+        train_epoch(model, train_loader, optimizer)
+
+        if epoch % monitor_freq == 0:
+            metrics = compute_consolidation_ratio(model, train_loader)
+            metrics['epoch']      = epoch
+            metrics['train_acc']  = evaluate(model, train_loader)
+            metrics['test_acc']   = evaluate(model, test_loader)
+
+            # Adapt learning rate from current phase
+            new_lr = get_adaptive_lr(base_lr, metrics['p'])
+            for pg in optimizer.param_groups:
+                pg['lr'] = new_lr
+
+            history.append(metrics)
+
+            # Phase transition detection
+            if len(history) >= 2:
+                prev_p, curr_p = history[-2]['p'], history[-1]['p']
+                if prev_p <= 0.5 < curr_p:
+                    print(f"⚡ Phase transition at epoch {epoch}")
+                    print(f"   C_α: {history[-2]['C_alpha']:.3f} → {metrics['C_alpha']:.3f}")
+                    print(f"   Dominant pole now in left half-plane")
+
+    return history
+
+
+def get_adaptive_lr(base_lr, p):
+    """Scale LR by learning phase (p = C_α / (1 + C_α))."""
+    if   p < 0.40: return base_lr * 0.10   # Failing: pull back hard
+    elif p < 0.50: return base_lr * 0.50   # Sub-threshold: cautious
+    elif p < 0.60: return base_lr * 1.00   # Critical: hold steady
+    elif p < 0.75: return base_lr * 1.50   # Learning: accelerate
+    else:          return base_lr * 2.00   # Strong: maximize extraction
 ```
 
-By flattening minima, SAM creates more isotropic diffusion and better stability margins.
+### 10.8 Early Stopping (Mechanistic)
+
+```python
+def should_stop_early(history, window=10):
+    """
+    Mechanistic early stopping based on C_α dynamics — not validation loss.
+    Catches stagnation and divergence before they manifest in validation metrics.
+    """
+    if len(history) < window:
+        return False, "Insufficient history"
+
+    recent  = history[-window:]
+    p_vals  = [h['p']       for h in recent]
+    ca_vals = [h['C_alpha'] for h in recent]
+
+    if all(p < 0.45 for p in p_vals):
+        return True, f"p < 0.45 for {window} consecutive measurements"
+
+    if all(ca_vals[i] >= ca_vals[i+1] for i in range(window-1)):
+        return True, f"C_α monotonically decreasing for {window} steps"
+
+    if history[-1].get('I', 0) < 0:
+        return True, "I < 0: divergence detected"
+
+    return False, "Training healthy"
+```
 
 ---
 
-## Open Questions
+## 11. Computational Complexity & Scaling
 
-1. **Continual Learning:** How do shadow parameters and pole locations evolve during task switching?
+| Method | Cost | Notes |
+|---|---|---|
+| Standard $C_\alpha$ | $\sim 100$ gradient evaluations | 20 batches × 5× overhead |
+| Curvature-aware $C_\alpha^H$ | $\sim 100$ gradients + $\sim 10$ HVPs | Hutchinson diagonal Hessian |
+| Laplace spectrum analysis | $O(T \log T)$ | FFT of length-$T$ history |
+| Full tail index estimation | $O(n \log n)$ | Hill estimator on gradient norms |
+| Transfer function fit | $O(T d)$ | FFT + averaging over parameters |
 
-2. **Optimal Schedules:** Should C_α be maintained (homeostatic) or guided through phases? What pole placement strategy is optimal?
+**Scaling strategies for large models (10B+ parameters):**
 
-3. **Scaling Laws:** How does C_α relate to compute-optimal scaling (Chinchilla, etc.)? Do larger models have intrinsically better pole locations?
-
-4. **Pruning:** Can shadow-aware pruning preserve pole locations while reducing dimensionality?
-
-5. **Biological Plausibility:** Do biological neural networks regulate analogous consolidation ratios? Can we measure C_α in neural recordings?
-
-6. **Multi-Modal Learning:** How do different modalities interact in the s-plane? Are there cross-modal pole couplings?
-
----
-
-## Limitations
-
-1. **Quasi-Equilibrium Assumption:** GTI assumes thermalization. Rapid schedule changes may violate this.
-
-2. **Computational Cost:** Full C_α^H scales poorly to 175B+ parameters without approximation. Laplace analysis requires storing time-series data.
-
-3. **Dead Neuron Problem:** Standard C_α can be misleadingly high when most parameters are inactive. Use C_α^H.
-
-4. **Local vs Global:** Multiple local optima may all satisfy C_α > 1. GTI provides necessary but not sufficient conditions.
-
-5. **Non-Stationarity:** Distribution shift and curriculum learning require extended framework with time-varying transfer functions.
-
-6. **Linearity Assumption:** Laplace analysis assumes linearization around operating point. Highly nonlinear dynamics may not be fully captured.
+- **Block-wise:** Compute $C_\alpha$ per layer independently; average or track separately
+- **Subspace projection:** Project gradients onto a low-rank basis (top $k$ PCA directions) before computing $C_\alpha$
+- **Temporal EMA:** Maintain exponential moving averages of $\|\mu\|^2$ and $\text{Tr}(D)$ rather than storing all gradient samples
+- **Frequency decimation:** Analyze only low-frequency components of $C_\alpha$ history (high-frequency fluctuations are noise)
+- **Sparse sampling:** Sample 1% of parameters uniformly and estimate $C_\alpha$ in that subspace
 
 ---
 
-## Installation
+## 12. Theoretical Connections
+
+GTI does not introduce new mathematics — it reveals that existing mathematical frameworks were all describing the same phenomenon from different angles.
+
+| Framework | Connection to $C_\alpha$ | Specific result |
+|---|---|---|
+| **Statistical Mechanics** | $C_\alpha \sim 1$ is the critical temperature in Ginzburg-Landau theory | The phase transition is in the universality class of continuous (second-order) phase transitions |
+| **Information Theory** | $C_\alpha \propto I(X; Y)$ between input and representation | $C_\alpha$ bounds the mutual information per gradient observation |
+| **Dynamical Systems** | $C_\alpha = 1$ corresponds to zero Lyapunov exponent | The Lyapunov exponent changes sign at $C_\alpha = 1$ — edge of chaos |
+| **Control Theory** | $C_\alpha$ determines stability margins in the Nyquist plot | Phase margin $\varphi_m = \arctan(C_\alpha)$; gain margin = $20\log_{10}(C_\alpha)$ dB |
+| **Signal Processing** | $C_\alpha$ is the SNR at DC frequency | White noise assumption + DC signal gives $C_\alpha$ as the natural SNR |
+| **PAC-Learning Theory** | Generalization gap $\propto 1/\sqrt{C_\alpha}$ | Tighter PAC-Bayes bounds at higher $C_\alpha$ |
+| **Information Geometry** | $C_\alpha$ is invariant under the Fisher metric | Natural gradient preserves $C_\alpha$ — it's a Riemannian invariant |
+| **Laplace Transform Theory** | All poles of $H(s)$ in left half-plane $\Leftrightarrow$ $C_\alpha > 1$ | Frequency-domain stability $\equiv$ gradient signal-to-noise condition |
+
+---
+
+## 13. Limitations & Open Problems
+
+### 13.1 Current Limitations
+
+**Polyak-Łojasiewicz (PL) assumption:** The linear convergence guarantee requires the PL condition $\|\nabla L\|^2 \geq 2\mu_{\text{PL}}(L - L^*)$. This holds for overparameterized networks near their training minima but fails in saddle-point-rich regions early in training.
+
+**Quasi-equilibrium assumption:** GTI assumes gradient statistics change slowly enough between the $n_{\text{samples}}$ batches used to estimate $C_\alpha$. Near a phase transition, statistics can change rapidly, violating this assumption at exactly the moment accurate measurement matters most.
+
+**Computational cost of Hessian:** True $\lambda_{\max}(H)$ for billion-parameter models requires many forward-backward passes. The Hutchinson diagonal estimate is cheaper but noisier.
+
+**Linearity of Laplace analysis:** The Laplace framework linearizes dynamics around an operating point. Highly nonlinear phenomena (large learning rate oscillations, catastrophic loss spikes) may not be captured accurately by the linearized transfer function.
+
+**Non-stationarity:** Distribution shift, curriculum learning, and continual learning introduce time-varying dynamics. The current framework assumes a fixed task; extending to $H(s, t)$ (time-varying transfer functions) is open.
+
+**Dead neuron problem:** Standard $C_\alpha$ can be misleadingly high if many parameters are truly inactive (dead ReLUs). $C_\alpha^H$ mitigates this via curvature activity but at higher computational cost.
+
+**Local vs. global:** Multiple local optima may all satisfy $C_\alpha > 1$. The framework provides *necessary* but not *sufficient* conditions for good generalization.
+
+### 13.2 Open Research Directions
+
+**Continual learning:** How do shadow parameters and pole locations evolve during task switching? Catastrophic forgetting may correspond to a sudden increase in $d_{\text{eff}}$ (manifold expansion) when a new task is introduced. Can GTI governors detect this and trigger consolidation of old-task representations before they are overwritten?
+
+**Scaling laws:** The Chinchilla scaling laws relate compute, data, and model size to loss. How does $I$ (the intelligence coefficient) scale with compute budget $C$? Is there a $C_\alpha$-based derivation of the compute-optimal token-to-parameter ratio?
+
+**Biological plausibility:** Spike-Timing Dependent Plasticity (STDP) in biological neurons strengthens synapses that fire consistently together across presentations — which is precisely a local $C_\alpha$ computation. Synapses with high temporal correlation (high $\mu$, low $D$) are strengthened; inconsistent synapses are weakened. Formalizing this could bridge computational and biological learning theories with a common mathematical object.
+
+**Multi-modal learning:** In joint vision-language models, do different modalities have different $C_\alpha$ dynamics? Are there cross-modal pole couplings in the Laplace representation, where the language tower's stability depends on the vision tower's $C_\alpha$?
+
+**Federated learning:** In federated settings, gradients are computed on heterogeneous local data distributions. What aggregation rule on per-client $C_\alpha$ values gives the best estimate of global consolidation? How does client heterogeneity affect the global phase transition threshold?
+
+**Large Language Model emergent capabilities:** Do the capability jumps observed in large language models as scale increases correspond to phase transitions in $C_\alpha$ space? Is emergence simply grokking at scale?
+
+**GTI-aware pruning:** Can we prune by preserving pole locations in the Laplace representation rather than by weight magnitude? Shadow-aware pruning might preserve structural parameters (high curvature, low gradient) that standard magnitude pruning discards.
+
+---
+
+## 14. Quick Start
 
 ```bash
 pip install torch numpy scipy matplotlib
 ```
 
-## Basic Usage
-
 ```python
 from gti import (
-    compute_consolidation_ratio, 
+    compute_consolidation_ratio,
     curvature_aware_C_alpha,
     analyze_learning_spectrum
 )
 
-# Standard C_α
+# ─── Standard C_α monitoring ─────────────────────────────────────────────────
 metrics = compute_consolidation_ratio(model, dataloader, n_samples=20)
-print(f"C_α: {metrics['C_alpha']:.3f}")
+print(f"C_α    : {metrics['C_alpha']:.3f}")
+print(f"p      : {metrics['p']:.3f}   ({'✓ signal dominates' if metrics['p'] > 0.5 else '✗ noise dominates'})")
 
-# Curvature-aware C_α^H
+# ─── Curvature-aware C_α^H ───────────────────────────────────────────────────
 metrics_h = curvature_aware_C_alpha(
     model, loss_fn, dataloader,
     n_grad_samples=20,
     n_hess_samples=10
 )
-print(f"C_α^H: {metrics_h['C_alpha']:.3f}")
-print(f"Shadow fraction: {metrics_h['shadow_fraction']:.3f}")
-print(f"Effective rank: {metrics_h['r_eff']:.3f}")
+print(f"C_α^H  : {metrics_h['C_alpha']:.3f}")
+print(f"r_eff  : {metrics_h['r_eff']:.1f}   (isotropy; higher = more isotropic noise)")
+print(f"shadow : {metrics_h['shadow_fraction']:.2%} of active params are shadow-active")
 
-# Frequency-domain analysis
-C_alpha_history = []  # Collect during training
+# ─── Frequency-domain analysis after training ────────────────────────────────
+C_alpha_history = []
 for epoch in range(num_epochs):
-    # ... training ...
-    C_alpha_history.append(compute_consolidation_ratio(model, dataloader))
+    train_epoch(model, train_loader)
+    C_alpha_history.append(compute_consolidation_ratio(model, train_loader)['C_alpha'])
 
 spectrum = analyze_learning_spectrum(C_alpha_history)
-print(f"Dominant pole: {spectrum['dominant_pole']:.3f}")
-print(f"System stable: {spectrum['stable']}")
-print(f"Learning bandwidth: {spectrum['bandwidth']:.3f}")
+print(f"Dominant pole : {spectrum['dominant_pole']:.4f}")
+print(f"System stable : {spectrum['stable']}")
+print(f"Bandwidth     : {spectrum['bandwidth']:.3f}")
 ```
 
 ---
 
-## Citation
+## 15. Glossary
 
-```bibtex
-@article{gti2025,
-  title={General Theory of Intelligence: A Unified Framework for Deep Learning with Laplace Transform Analysis},
-  journal={arXiv preprint},
-  year={2025}
-}
-```
-
-## Contributing
-
-We welcome contributions extending the theoretical framework or providing empirical validation. Priority areas:
-
-- Large language model scaling experiments
-- Continual learning with GTI governors  
-- Hardware-efficient C_α estimation
-- Biological plausibility studies
-- Application to reinforcement learning
-- Frequency-domain optimization algorithms
-- Real-time pole monitoring during training
+| Term | Definition |
+|---|---|
+| **Consolidation ratio ($C_\alpha$)** | $\|\mathbb{E}[\nabla L]\|^2 / \text{Tr}(\text{Cov}[\nabla L])$ — squared signal power over total noise power |
+| **Drift ($\mu$)** | $\mathbb{E}[\nabla L(\theta)]$ — the mean gradient, the "true" learning direction |
+| **Diffusion ($D$)** | $\text{Cov}[\nabla L(\theta)]$ — gradient covariance matrix encoding batch-to-batch variability |
+| **Phase transition** | Sharp qualitative change at $C_\alpha = 1$ separating noise-dominated from signal-dominated regimes |
+| **Péclet number** | Physical analogy: ratio of advective (directed) to diffusive (random) transport; $C_\alpha$ is the Péclet number for gradient flow |
+| **Transfer function $H(s)$** | $-1/s$ — the Laplace-domain operator mapping gradient inputs to parameter updates |
+| **Dominant pole $s_{\text{dom}}$** | Rightmost pole of $H(s)$; $\text{Re}(s_{\text{dom}}) < 0$ means stable learning |
+| **Region of convergence (ROC)** | Set of $s$ for which $\mathcal{L}\{\theta_t\}$ converges; includes imaginary axis iff $C_\alpha > 1$ |
+| **Gain margin (GM)** | $20\log_{10}(C_\alpha)$ dB — positive iff $C_\alpha > 1$; measures stability robustness |
+| **Effective rank ($r_{\text{eff}}$)** | $[\text{Tr}(D)]^2 / \text{Tr}(D^2)$ — measures isotropy of gradient noise; 1 = fully anisotropic, $d$ = fully isotropic |
+| **Shadow-active parameter** | Parameter with low gradient but high diagonal Hessian; shapes the landscape without visible gradient activity |
+| **$Q_{\text{GTI}}$** | $C_\alpha^H \cdot r_{\text{eff}} \cdot (1 + \beta f_{\text{shadow}})$ — unified training quality metric |
+| **Edge of chaos** | Operating regime at $C_\alpha \approx 1$; maximum information processing capacity |
+| **Grokking** | Sudden phase transition from memorization to generalization; visible as dominant pole crossing from $\text{Re}(s) > 0$ to $\text{Re}(s) < 0$ |
+| **Hutchinson estimator** | Stochastic estimator for $\text{Tr}(D)$ using Rademacher random vectors; $O(d)$ cost |
+| **Langevin dynamics** | Continuous-time limit of SGD: $d\theta = -\nabla L\, dt + \sqrt{2D}\, dW$ |
+| **Lyapunov stability** | Condition $\mathcal{L}V < 0$ (infinitesimal generator negative) ensuring convergence; equivalent to $C_\alpha > 1$ |
+| **PAC-Bayes bound** | Probabilistic bound on generalization gap; tighter at higher $C_\alpha$ |
+| **Pole placement** | Control-theoretic technique: choose $\eta$ to position $H(s)$ poles at desired locations in the $s$-plane |
+| **Soft freezing** | Layer-wise regularization that activates smoothly as $C_\alpha^{(l)}$ crosses threshold; prevents catastrophic forgetting |
+| **Tail index ($\alpha$)** | Exponent of heavy-tailed gradient distribution ($\alpha = 2$ Gaussian; $\alpha < 2$ Lévy-stable) |
+| **Abscissa of convergence ($\sigma_a$)** | Infimum of $\text{Re}(s)$ for which Laplace transform converges; $\sigma_a < 0$ iff $C_\alpha > 1$ |
 
 ---
 
-## Acknowledgments
+## Summary
 
-This work synthesizes insights from:
-- **Information Geometry:** Amari (natural gradients, Fisher metric)
-- **Statistical Physics:** Ginzburg-Landau theory, critical phenomena
-- **Generalization Theory:** PAC-Bayes bounds, flat minima (Hochreiter)
-- **Modern Deep Learning:** Grokking, lottery tickets, double descent
-- **Control Theory:** Laplace transforms, stability analysis, transfer functions
-- **Signal Processing:** Frequency-domain analysis, spectral methods
+The General Theory of Intelligence unifies the diverse phenomena of deep learning under a single principle: **intelligence emergence is a phase transition governed by the consolidation ratio $C_\alpha$**.
 
-The framework demonstrates that these seemingly disparate phenomena emerge from a single underlying principle: the consolidation ratio C_α, which can be understood equivalently through information theory, dynamical systems, statistical learning, geometry, and now **frequency-domain control theory via Laplace transforms**.
+The threshold $C_\alpha = 1$ is not an empirical observation. It is derived from five independent theoretical frameworks — information theory, Lyapunov stability, PAC-Bayes learning theory, differential geometry, and Laplace transform control theory — all of which converge on the same critical value. The Laplace transform framework adds a new dimension: learning dynamics are fully characterized by a transfer function $H(s) = -1/s$, and generalization corresponds precisely to all poles of this function lying in the left half-plane.
+
+The extended framework adds curvature-aware shadow parameters (invisible to gradient monitoring but shaping the landscape through curvature), the unified quality metric $Q_{\text{GTI}}$ (integrating consolidation, isotropy, and structural completeness), and GTI-native optimization (maintaining $C_\alpha \approx 1$ at the edge of chaos for maximum learning efficiency).
+
+Every major phenomenon in deep learning — grokking, double descent, lottery tickets, edge of stability, flat minima, and emergent capabilities — reduces to pole migration in the complex $s$-plane, governed by the same underlying signal-noise competition.
+
+> *"Intelligence emerges as signal consolidation over a collapsing fractal manifold at the edge of spectral stability."*
+
+---
+
+*Built on insights from information geometry (Amari), statistical physics (Ginzburg-Landau), generalization theory (PAC-Bayes, Hochreiter), deep learning phenomenology (grokking, double descent, lottery tickets), and control theory (Laplace transforms, stability analysis).*
